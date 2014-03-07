@@ -331,7 +331,6 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
     
     import numpy as np
     import matplotlib.pyplot as plt
-    import matplotlib.patches as mpatches
     import scipy.stats as sps
     
     import types
@@ -409,6 +408,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
     GRAY  = '#CCCCCC'
     DGRAY = '#666666'
     WHITE = '#FFFFFF'
+    BLUE = '#00FFFF'
     X_LABEL = 'Wavelength ($\mu$m)'
     Y_LABEL = 'Normalized Flux (F$_{\lambda}$)'
     
@@ -491,12 +491,13 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
                 zOrders[plotIdx] = 10000 # Template plotted on top of all others
         
         # 4e) Fetch spectral strip --------------------------------------------
-        # Pull wls, min, max, and vars from template
+        # Pull wls, flux, min, max, and vars from template
         stripExists = True
         templIdx = np.where(np.array(plotInstructions) == 'template')
         if len(templIdx[0]) != 0:
             if specData[band][templIdx[0][0]] is not None:
                 templWls = specData[band][templIdx[0][0]][0]
+                templFlux = specData[band][templIdx[0][0]][1]
                 templVar = specData[band][templIdx[0][0]][2]
                 templMin = specData[band][templIdx[0][0]][3]
                 templMax = specData[band][templIdx[0][0]][4]
@@ -505,76 +506,17 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         else:
             stripExists = False
         
-        # 4g) Plot spectral STRIP ---------------------------------------------
+        # 4g) Plot STRIPS -----------------------------------------------------
         if stripExists:
-            grayIdxOpt = 2
-            increase = True
-            for wlIdx, wl in enumerate(templWls):
-                if wlIdx == 0:
-                    continue
-                elif wlIdx == len(templWls) - 1:
-                    continue
-                elif not np.isfinite(templMin[wlIdx]):
-                    continue
-            
-                # Set location of lower left corner of rectangle
-                rect_x = wl - ((wl - templWls[wlIdx - 1]) / 2)
-                rect_y = templMin[wlIdx]
-                # Set dimensions of rectangle
-                rect_width = ((wl - templWls[wlIdx - 1]) / 2) + \
-                             ((templWls[wlIdx + 1] - wl) / 2) # * 2
-                rect_height = templMax[wlIdx] - templMin[wlIdx]
-            
-                # Set color fill of rectangle
-                if band == 'OPT':
-                    grayIdx = 5
-                    # if wlIdx % 4 == 0:
-                    #     if grayIdxOpt == 7:
-                    #         increase = False
-                    #     elif grayIdxOpt == 2:
-                    #         increase = True
-                    #     if increase:
-                    #         grayIdxOpt = grayIdxOpt + 1 
-                    #     else:
-                    #         grayIdxOpt = grayIdxOpt - 1
-                    #     grayIdx = grayIdxOpt
-                elif templVar is None:
-                    grayIdx = 4
-                else:
-                    var = templVar[wlIdx]
-                    if var > 0.19:
-                        grayIdx = 9
-                    elif var > 0.17:
-                        grayIdx = 8
-                    elif var > 0.16:
-                        grayIdx = 7
-                    elif var > 0.15:
-                        grayIdx = 6
-                    elif var > 0.13:
-                        grayIdx = 5
-                    elif var > 0.11:
-                        grayIdx = 4
-                    elif var > 0.09:
-                        grayIdx = 3
-                    elif var > 0.07:
-                        grayIdx = 2
-                    elif var > 0.06:
-                        grayIdx = 1
-                    else:
-                        grayIdx = 0
-            
-                rect_color = GRAYS[grayIdx]
-                                        
-                rect_patch1 = mpatches.Rectangle(xy=(rect_x, rect_y), width=rect_width, \
-                                                height=rect_height, color=rect_color) #, \
-                                                #edgecolor='none')
-                subPlot.add_patch(rect_patch1)
-                # Draw a second rectangle in same pixel to make strip smoother
-                if band != 'OPT':
-                    rect_patch2 = mpatches.Rectangle(xy=(wl, rect_y), width=rect_width, \
-                                                height=rect_height, color=rect_color) #, \
-                                                #edgecolor='none')
-                    subPlot.add_patch(rect_patch2)
+            # Min-max strip
+            subPlot.fill_between(templWls, templMin, templMax, facecolor=GRAY, \
+                                 edgecolor='none')
+            # 1-sigma strip
+            if band != 'OPT':
+                templSigmaLow = templFlux - np.sqrt(templVar)
+                templSigmaUp = templFlux + np.sqrt(templVar)
+                subPlot.fill_between(templWls, templSigmaLow, templSigmaUp, facecolor=DGRAY, \
+                                     edgecolor='none', zorder=10)
         
         # 4h) Plot spectral LINES ---------------------------------------------
         countColors = specNum - 1
@@ -633,29 +575,6 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
                     continue
                 elif objID[specIdx].startswith('0328+2302'):
                     continue
-                # U50184 -- got new optical april 15/2013
-                #elif objID[specIdx].startswith('1022+4114'):
-                #    continue
-                # U50078 -- got new optical april 10/2013
-                #elif objID[specIdx].startswith('0652-2534'):
-                #    continue
-                # U50185 -- got new optical april 15/2013
-                #elif objID[specIdx].startswith('0235-2331'):
-                #    continue
-                # U50080 -- got new optical april 10/2013
-                #elif objID[specIdx].startswith('0751-2530'):
-                #    continue
-                # U20552 -- got new optical april 15/2013
-                #elif objID[specIdx].startswith('1409-3357'):
-                #    continue
-                # U50246
-                # U50061 -- removed from plots until we get good optical
-                #elif objID[specIdx].startswith('0539-0059'):
-                #    continue
-                # U50171 -- removed from plots until we get good optical
-                #elif objID[specIdx].startswith('0835+1953'):
-                #    continue
-                # U50188
             
             subPlot.plot(spec[0], spec[1], color=plotColor, linestyle=lnStyle, \
                     dash_joinstyle='round', linewidth=lnWidth, label=objLabel, \
@@ -768,7 +687,9 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     colNameOPTS = HDR_FILE_IN_STD[3]
     
     # For TXT exclude-objects file
-    EXCL_FILE = 'Exclude_Objs.txt'   # ASCII file w/ U#s of objects to exclude
+    EXCLPRE = 'comp_'
+    EXCLPOST = '_s2.0_band_rejects.txt'
+    #EXCL_FILE = 'Exclude_Objs.txt'   # ASCII file w/ U#s of objects to exclude
     
     OPTNIR_KEYS = ['OPT','NIR']
     BANDS_NAMES = ['K','H','J','OPT']
@@ -784,6 +705,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     colNameK     = HDR_FILE_IN[4]
     colNameJK    = 'J-K'
     colNameType  = HDR_FILE_IN[6]
+    colNameNIRfile = HDR_FILE_IN[9]
     colNameYng   = HDR_FILE_IN[14]
     colNameDust  = HDR_FILE_IN[15]
     colNameBlue  = HDR_FILE_IN[16]
@@ -936,9 +858,11 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # 7. GATHER OBJECTS' NAMES ---------------------------------------------------------
     # Filtered objects
     refs = [None] * len(specSortIdx)
+    NIRfilenames = [None] * len(specSortIdx)
     for idx,spIdx in enumerate(specSortIdx):
         tmpRef    = data[colNameRef][specIdx[spIdx]]
         refs[idx] = str(int(tmpRef))
+        NIRfilenames[idx] = data[colNameNIRfile][specIdx[spIdx]]
     
     # Standard objects
     refsStd = [None] * len(dataS[colNameRef])
@@ -991,19 +915,22 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # 10. CHARACTERIZE TARGETS (i.e. identify young, blue, to exclude...) --------------
     # Determine which targets to exclude using the "Exclude_Objs" file
     toExclude = [False] * len(refs)
-    dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, data_start=0, delimiter=DELL_CHAR, \
-                          comment=COMM_CHAR, names=['ID'])
-    if len(dataExcl['ID']) > 0:
+    exclFile = EXCLPRE + spInput.upper() + EXCLPOST
+    pdb.set_trace()
+    dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', delimiter=DELL_CHAR, \
+                          comment=COMM_CHAR)
+    if len(dataExcl) > 0:
         # Extract data from "Exclude_Objs" file
-        excludeObjs = np.array(dataExcl['ID'], dtype='string')
+        excludeObjs = np.array(dataExcl['col1']).astype(object)
+        excludeObjs = excludeObjs + np.repeat('.fits', len(dataExcl))
         
         # Find intersection of exclude-obj list and filtered targets list
-        setExclude = set(excludeObjs).intersection(set(refs))
+        setExclude = set(excludeObjs).intersection(set(NIRfilenames))
         
         # Create list with intersection targets
         if len(setExclude) != 0:
             for exclIdx in setExclude:
-                tmpExclIdx = np.where(np.array(refs) == exclIdx)
+                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)
                 toExclude[tmpExclIdx[0]] = True
     
     # Determine which target is the NIR Standard object
@@ -1197,7 +1124,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             if len(templSpecs) > 1:
                 template = at.mean_comb(templSpecs, extremes=True)
                 templCalculated = True
-            
             # Append template to list of spectra to plot in the next step
             if templCalculated:
                 spectraN[bandKey].append(template)
