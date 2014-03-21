@@ -927,7 +927,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     if len(setExclude) != 0:
         for exclIdx in setExclude:
             tmpExclIdx = np.where(np.array(refs) == exclIdx)[0]
-            toExclude[tmpExclIdx] = True
+            toExclude[tmpExclIdx] = True 
     
     # 10.1.2 Extract NIR file names from "comp_" exclude file
     exclFile = EXCLPRE + spInput.upper() + EXCLPOST
