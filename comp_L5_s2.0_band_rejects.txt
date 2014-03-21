@@ -1,0 +1,9 @@
+# 6 L5 dwarfs rejected from template construction because 
+# reduced chi2 > 2.00000 in any band (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+2M1507 	3.10928	2.09532	1.96858
+U10088_050810 	1.20156	2.31152	1.34661
+U10372_0512-2949 	4.76537	3.65877	2.90933
+U20171_0355+1133 	15.7655	10.4263	15.8266
+spex_prism_0326-2102_U10184 	6.90302	7.96928	5.19517
+spex_prism_2002-0521_080908 	10.9755	8.70579	3.62075
