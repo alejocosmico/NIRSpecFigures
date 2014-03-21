@@ -1,0 +1,5 @@
+# 2 L8 dwarfs rejected from template construction because 
+# reduced chi2 > 2.00000 in any band (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+U10926 	5.26345	2.52560	1.71410
+U20301 	3.56840	11.3000	8.22444
