@@ -493,15 +493,14 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         # 4e) Fetch spectral strip --------------------------------------------
         # Pull wls, flux, min, max, and vars from template
         stripExists = True
-        templIdx = np.where(np.array(plotInstructions) == 'template')
-        #pdb.set_trace()
-        if len(templIdx[0]) != 0:
-            if specData[band][templIdx[0][0]] is not None:
-                templWls = specData[band][templIdx[0][0]][0]
-                templFlux = specData[band][templIdx[0][0]][1]
-                templVar = specData[band][templIdx[0][0]][2]
-                templMin = specData[band][templIdx[0][0]][3]
-                templMax = specData[band][templIdx[0][0]][4]
+        templIdx = np.where(np.array(plotInstructions) == 'template')[0][0]
+        if templIdx.size != 0:
+            if specData[band][templIdx] is not None:
+                templWls = specData[band][templIdx][0]
+                templFlux = specData[band][templIdx][1]
+                templVar = specData[band][templIdx][2]
+                templMin = specData[band][templIdx][3]
+                templMax = specData[band][templIdx][4]
             else:
                 stripExists = False
         else:
@@ -662,7 +661,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # 1. LOAD RELEVANT MODULES ---------------------------------------------------------
     from astropy.io import ascii
     import astrotools as at
-    import pyfits
     import numpy as np
     import sys
     import pdb
@@ -827,9 +825,11 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         specFiles = [None] * len(specSortIdx)
         
         for sortIdx,specSort in enumerate(specSortIdx):
+            if data[key + 'file'][specIdx[specSort]][-4:] == '.dat': continue
+            if data[key + 'file'][specIdx[specSort]] == 'include': continue
             tmpFullName = FOLDER_ROOT + key + '/' + data[key + 'file'][specIdx[specSort]]
             specFiles[sortIdx] = tmpFullName
-            specFilesDict[key] = specFiles
+        specFilesDict[key] = specFiles
         
         spectraRaw[key] = at.read_spec(specFiles, atomicron=True, negtonan=True, \
                                        errors=True, verbose=False)
@@ -887,7 +887,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     spectraS['OPT'] = tmpSpOPT
     spectraS['NIR'] = tmpSpNIR
     
-    
     # 9. SELECT SPECTRAL DATA FOR THE DIFFERENT BANDS ----------------------------------
     # Initialize variables
     spectra  = {}.fromkeys(BANDS_NAMES)
@@ -909,7 +908,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         spectraN[bandKey], flagN = at.norm_spec(spectra[bandKey], \
                                                BAND_LIMS[bandKey]['limN'], flag=True)
         if flagN:
-            print 'LIMITS for normalization changed!'
+            print bandKey + ' LIMITS for normalization changed!'
         if spectraN[bandKey] is None:
             break
     
@@ -1124,7 +1123,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             
             # Calculate template spectrum using spec uncertainties as weights
             if len(templSpecs) > 1:
-                #pdb.set_trace()
                 template = at.mean_comb(templSpecs, extremes=True)
                 templCalculated = True
                 # To calculate simple standard deviation, recalculate template without
