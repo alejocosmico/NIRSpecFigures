@@ -494,6 +494,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         # Pull wls, flux, min, max, and vars from template
         stripExists = True
         templIdx = np.where(np.array(plotInstructions) == 'template')
+        #pdb.set_trace()
         if len(templIdx[0]) != 0:
             if specData[band][templIdx[0][0]] is not None:
                 templWls = specData[band][templIdx[0][0]][0]
@@ -672,7 +673,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     FOLDER_ROOT = '/Users/alejo/KCData/'  # Location of NIR and OPT folders
     FOLDER_IN = '/Users/alejo/Dropbox/Python/BDNYC_specfigures/' # Location of input files
     FOLDER_OUT = '/Users/alejo/KCData/Output/NOCS/' # Location to save output figures
-    FILE_IN = 'nir_spex_prism_with_optical_12aug15.txt' # ASCII file w/ data
+    FILE_IN = 'nir_spex_prism_with_optical.txt' # ASCII file w/ data
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     
     # For TXT objects file (updatable here directly)
@@ -689,7 +690,8 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # For TXT exclude-objects file
     EXCLPRE = 'comp_'
     EXCLPOST = '_s2.0_band_rejects.txt'
-    #EXCL_FILE = 'Exclude_Objs.txt'   # ASCII file w/ U#s of objects to exclude
+    # The file below contains U#s of objects with weird optical spectra
+    EXCL_FILE = 'Exclude_Objs.txt'
     
     OPTNIR_KEYS = ['OPT','NIR']
     BANDS_NAMES = ['K','H','J','OPT']
@@ -874,7 +876,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     objRef = data[colNameRef][specIdx[specSortIdx]]
     
     
-    #8. SMOOTH SPECTRA -----------------------------------------------------------------
+    # 8. SMOOTH SPECTRA -----------------------------------------------------------------
     # Smooth the flux data to a reasonable resolution
     spectraS = {}.fromkeys(OPTNIR_KEYS)
     tmpSpOPT = at.smooth_spec(spectraRaw['OPT'], specFile=specFilesDict['OPT'], \
@@ -913,26 +915,36 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     
     
     # 10. CHARACTERIZE TARGETS (i.e. identify young, blue, to exclude...) --------------
-    # Determine which targets to exclude using the "Exclude_Objs" file
+    # 10.1 Determine which targets to exclude
     toExclude = [False] * len(refs)
+                          
+    # 10.1.1 Extract U#s from "Exclude_Objects" exclude file
+    dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR)
+    excludeObjs = np.array(dataExcl['col1'], dtype='string')
+    # Find intersection of exclude-obj list and filtered targets list
+    setExclude = set(excludeObjs).intersection(set(refs))
+    # Create list with intersection targets
+    if len(setExclude) != 0:
+        for exclIdx in setExclude:
+            tmpExclIdx = np.where(np.array(refs) == exclIdx)[0]
+            toExclude[tmpExclIdx] = True
+    
+    # 10.1.2 Extract NIR file names from "comp_" exclude file
     exclFile = EXCLPRE + spInput.upper() + EXCLPOST
     dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', delimiter=DELL_CHAR, \
                           comment=COMM_CHAR)
     if len(dataExcl) > 0:
-        # Extract data from "Exclude_Objs" file
         excludeObjs = np.array(dataExcl['col1']).astype(object)
         excludeObjs = excludeObjs + np.repeat('.fits', len(dataExcl))
-        
         # Find intersection of exclude-obj list and filtered targets list
         setExclude = set(excludeObjs).intersection(set(NIRfilenames))
-        
         # Create list with intersection targets
         if len(setExclude) != 0:
             for exclIdx in setExclude:
-                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)
-                toExclude[tmpExclIdx[0]] = True
+                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
+                toExclude[tmpExclIdx] = True
     
-    # Determine which target is the NIR Standard object
+    # 10.2 Determine which target is the NIR Standard object
     O_standard = [None] * 3 # Holds standard for output
     stdObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
@@ -943,37 +955,39 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             O_standard[1] = spectraN['H'][idx]
             O_standard[2] = spectraN['K'][idx]
     
+    # The following filters should not occur in this code any more ****
     # Determine which targets are blue
     blueObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        if data[colNameBlue][spIdx].upper() == 'YES':
-            blueObjs[idx] = True
+    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
+    #    if data[colNameBlue][spIdx].upper() == 'YES':
+    #        blueObjs[idx] = True
     
     # Determine which targets are dusty
     dustyObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        if data[colNameDust][spIdx].upper() == 'YES':
-            dustyObjs[idx] = True
+    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
+    #    if data[colNameDust][spIdx].upper() == 'YES':
+    #        dustyObjs[idx] = True
     
     # Determine which targets are binary
     binaryObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        if data[colNameBin][spIdx].upper() == 'YES':
-            binaryObjs[idx] = True
+    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
+    #    if data[colNameBin][spIdx].upper() == 'YES':
+    #        binaryObjs[idx] = True
     
     # Determine which targets are peculiar
     pecObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        if data[colNamePec][spIdx].upper() == 'YES':
-            pecObjs[idx] = True
+    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
+    #    if data[colNamePec][spIdx].upper() == 'YES':
+    #        pecObjs[idx] = True
+    # *****************************************************************
     
-    # Determine which targets are young
+    # 10.3 Determine which targets are young
     youngObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
         if data[colNameYng][spIdx].upper() == 'YES':
             youngObjs[idx] = True
     
-    # Determine which targets are GAMMA
+    # 10.4 Determine which targets are GAMMA
     gammaObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
         tmpType = data[colNameType][spIdx].encode('utf-8')
@@ -984,7 +998,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         if utcA == '\xce' and utcB == '\xb3':
             gammaObjs[idx] = True
     
-    # Determine which targets are BETA
+    # 10.5 Determine which targets are BETA
     betaObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
         tmpType = data[colNameType][spIdx].encode('utf-8')
@@ -995,7 +1009,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         if utcA == '\xce' and utcB == '\xb2':
             betaObjs[idx] = True
     
-    # Determine which targets to include in plots (based on user input)
+    # 10.6 Determine which targets to include in plots (based on user input)
     # Consolidate plotting & template-flux instructions
     grav = grav.upper()
     plotInstructions  = ['exclude'] * len(refs)
@@ -1109,7 +1123,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             
             # Calculate template spectrum using spec uncertainties as weights
             if len(templSpecs) > 1:
-                pdb.set_trace()
+                #pdb.set_trace()
                 template = at.mean_comb(templSpecs, extremes=True)
                 templCalculated = True
                 # To calculate simple standard deviation, recalculate template without
