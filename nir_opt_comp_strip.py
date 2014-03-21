@@ -510,7 +510,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         if stripExists:
             # Min-max strip
             subPlot.fill_between(templWls, templMin, templMax, facecolor=GRAY, \
-                                 edgecolor='none')
+                                 edgecolor='none', zorder=9)
             # 1-sigma strip
             if band != 'OPT':
                 templSigmaLow = templFlux - np.sqrt(templVar)
@@ -534,7 +534,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
             # Set lines styles
             lnStyle = '-'
             if plotInstr == 'template':
-                lnWidth = 1.1
+                lnWidth = 0.9 #1.1
             elif plotInstr == 'special':
                 lnWidth = 0.5
             else:
@@ -916,7 +916,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # Determine which targets to exclude using the "Exclude_Objs" file
     toExclude = [False] * len(refs)
     exclFile = EXCLPRE + spInput.upper() + EXCLPOST
-    pdb.set_trace()
     dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', delimiter=DELL_CHAR, \
                           comment=COMM_CHAR)
     if len(dataExcl) > 0:
@@ -1096,34 +1095,28 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
                             continue
                         elif refs[spIdx] == '50188':
                             continue
-                        #elif refs[spIdx] == '50171':
-                        #    continue
-                        #elif refs[spIdx] == '50184':
-                        #    continue
-                        #elif refs[spIdx] == '50078':
-                        #    continue
-                        #elif refs[spIdx] == '50185':
-                        #    continue
-                        #elif refs[spIdx] == '50080':
-                        #    continue
-                        #elif refs[spIdx] == '20552':
-                        #    continue
                         templSpecs.append(spex)
                     
                     else:
                         # Check that spectrum comes with error values (NIR bands only)
                         notNansBool = np.isfinite(spex[2])
-                        notNans     = np.any(notNansBool)
+                        notNans = np.any(notNansBool)
                         if notNans:
                             templSpecs.append(spex)
                         else:
                             print str(objRef[spIdx]) + ' excluded from template'
                             templInstructions[spIdx] = False
             
-            # Calculate template spectrum
+            # Calculate template spectrum using spec uncertainties as weights
             if len(templSpecs) > 1:
+                pdb.set_trace()
                 template = at.mean_comb(templSpecs, extremes=True)
                 templCalculated = True
+                # To calculate simple standard deviation, recalculate template without
+                # any weights, and just use the simple variance that comes out of that.
+                tmptempl = at.mean_comb(templSpecs, forcesimple=True)
+                template[2] = tmptempl[2].copy()
+            
             # Append template to list of spectra to plot in the next step
             if templCalculated:
                 spectraN[bandKey].append(template)
