@@ -748,7 +748,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     
     # File with objects (source: query in Access)
     dataRaw = ascii.read(FOLDER_IN + FILE_IN, format='no_header', \
-                         delimiter=DELL_CHAR, comment=COMM_CHAR, data_start=0)
+                         delimiter=DELL_CHAR, comment=COMM_CHAR, data_start=1)
     
     # Store data in a dictionary-type object
     data = {}.fromkeys(HDR_FILE_IN)
@@ -919,7 +919,8 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     toExclude = [False] * len(refs)
                           
     # 10.1.1 Extract U#s from "Exclude_Objects" exclude file
-    dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR)
+    dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR, \
+                          data_start=1)
     excludeObjs = np.array(dataExcl['col1'], dtype='string')
     # Find intersection of exclude-obj list and filtered targets list
     setExclude = set(excludeObjs).intersection(set(refs))
