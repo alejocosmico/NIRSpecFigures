@@ -1,8 +1,6 @@
-# 5 L6 dwarfs rejected from template construction because 
+# 3 L6 dwarfs rejected from template construction because 
 # reduced chi2 > 2.00000 in any band (but not full spectrum)
 # Name	J chi2	H chi2	K chi2
-U50933_1118-0856_KIR10A 	3.36154	4.97777	7.78159
-U50174_1331-0116_BUR10A 	4.72897	7.64782	9.78021
-U11314 	1.06215	1.03238	6.36249
-j2148+40prismtc_davy1_09sep05 	11.5078	6.06749	14.0093
-U20968_2244+2043_dagny 	5.75131	7.82696	8.20304
+U50174_1331-0116_BUR10A 	3.88235	13.1725	5.11431
+j2148+40prismtc_davy1_09sep05 	14.1723	4.75060	7.08872
+U20968_2244+2043_dagny 	7.93567	5.80672	6.17224
