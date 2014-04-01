@@ -610,9 +610,9 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
 #                         xmax=limits[band]['lim'][1] * 1.001)
         
         # 4j) Customize y axis ------------------------------------------------
-        subPlot.spines['left'].set_color('none')
-        subPlot.spines['right'].set_color('none')
-        subPlot.yaxis.set_ticks([])
+        #subPlot.spines['left'].set_color('none')
+        #subPlot.spines['right'].set_color('none')
+        #subPlot.yaxis.set_ticks([])
         
         # 4k) Create and format legend (for J band only) ----------------------
         if band == 'J':
@@ -670,7 +670,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # Customizable variables <><><><><><><><><><><><><><><><><><><><><><><><><><><>
     FOLDER_ROOT = '/Users/alejo/KCData/'  # Location of NIR and OPT folders
     FOLDER_IN = '/Users/alejo/Dropbox/Python/BDNYC_specfigures/' # Location of input files
-    FOLDER_OUT = '/Users/alejo/KCData/Output/NOCS/' # Location to save output figures
+    FOLDER_OUT = FOLDER_IN # Location to save output figures
     FILE_IN = 'nir_spex_prism_with_optical.txt' # ASCII file w/ data
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     
@@ -1123,12 +1123,18 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             
             # Calculate template spectrum using spec uncertainties as weights
             if len(templSpecs) > 1:
-                template = at.mean_comb(templSpecs, extremes=True)
-                templCalculated = True
+                if bandKey == 'OPT':
+                    template = at.mean_comb(templSpecs, extremes=True)
+                else:
+                    template_first, renormSpecs = at.mean_comb(templSpecs, renormalize=True)
+                    # Re-calculate template using re-normalized spectra
+                    template = at.mean_comb(renormSpecs, extremes=True)
+                
                 # To calculate simple standard deviation, recalculate template without
                 # any weights, and just use the simple variance that comes out of that.
-                tmptempl = at.mean_comb(templSpecs, forcesimple=True)
+                tmptempl = at.mean_comb(renormSpecs, forcesimple=True)
                 template[2] = tmptempl[2].copy()
+                templCalculated = True
             
             # Append template to list of spectra to plot in the next step
             if templCalculated:
