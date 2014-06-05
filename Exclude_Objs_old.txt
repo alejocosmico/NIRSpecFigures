@@ -1,0 +1,70 @@
+# If unum not preceded by #: manually being excluded from plots by this file
+# If unum preceded by ##: already flagged in database, so only included in this file for completeness
+# If unum preceded by #: manually being included in plots by commenting it out from this file
+# confirmed binary --------------------
+##11122
+##12009
+##50176
+# candidate binary by us --------------
+20027
+50188
+50061
+# candidate binary by literature ------
+50125
+# S/N low in OPT ----------------------
+20699
+40104
+20550
+10045
+10789
+13061
+20587
+51201
+# S/N low in NIR ----------------------
+12096
+20157
+20179
+40021
+10714
+51060
+# dusty -------------------------------
+##12128
+##40003
+##20968
+##11538
+# blue by literature ------------------
+##11694
+##11115
+##50062
+##20336
+##50174
+##50207
+##50933
+##51218
+# blue by us --------------------------
+##20625
+##10151
+##10802
+10029
+11296
+20752
+# peculiar ----------------------------
+##10006
+##20487
+##20744
+##11682
+##20791
+##10764
+##10329
+##13039
+##20114
+##10102
+##12164
+##20994
+# confusing young L4, L5 --------------
+10184
+11946
+10372
+20171
+# NIR range too short -----------------
+10142
