@@ -665,9 +665,9 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
     
     # 2. SET UP VARIABLES --------------------------------------------------------------
     # Customizable variables <><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    FOLDER_ROOT = '/Users/alejo/Dropbox/Project_0/Data/'  # Location of NIR and OPT folders
-    FOLDER_IN = '/Users/alejo/Dropbox/Python/BDNYC_specfigures/' # Location of input files
-    FOLDER_OUT = '/Users/alejo/Dropbox/Project_0/Plots/' # Location to save output figures
+    FOLDER_ROOT = '/Users/alejo/Dropbox/Project_0/more data/'  # Location of NIR and OPT folders
+    FOLDER_IN = '/Users/alejo/Dropbox/Project_0/data/' # Location of input files
+    FOLDER_OUT = '/Users/alejo/Dropbox/Project_0/plots/' # Location to save output figures
     FILE_IN = 'nir_spex_prism_with_optical.txt' # ASCII file w/ data
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     
@@ -1144,7 +1144,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
         else:
             sptxt = ''
         figObj.savefig(FOLDER_OUT + spTypeInput + 'strip_' + \
-                      grav.lower() + sptxt + '.eps')
+                      grav.lower() + sptxt + '.pdf', dpi=300)
     
     
     # 14. DETERMINE OUTPUT -------------------------------------------------------------

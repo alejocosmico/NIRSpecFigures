@@ -303,4 +303,3 @@ plotInstructions = ['template','standard'] * len(spTypes)
 figure = plotspec(spectra, BANDS, BAND_LIMS, spTypes, plotInstructions)
                   
 plt.savefig(FOLDER_OUT_PLT + '/templates-stds.pdf', dpi=300)
-plt.savefig(FOLDER_GIT + '/templates-stds.pdf', dpi=300)

@@ -118,4 +118,3 @@ ax.add_patch(Rectangle((15,26), 0.37, 1.2, hatch='//', facecolor='none', edgecol
 ax.text(15.4,26.3, 'new NIR spectra', fontstyle='italic', size=16, color=GRAY)
 
 fig.savefig(FOLDER_OUT_PLT + 'histogram.pdf', dpi=300)
-fig.savefig(FOLDER_GIT + 'histogram.pdf', dpi=300)

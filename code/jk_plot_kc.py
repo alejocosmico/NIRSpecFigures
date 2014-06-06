@@ -101,4 +101,3 @@ plt.annotate('individual objects', xy=loc, xytext=loctext, \
              fontsize=14, color=BLACK, ha='left', arrowprops=linetype)
 
 fig.savefig(FOLDER_OUT_PLT + 'JK.pdf', dpi=300)
-fig.savefig(FOLDER_GIT + 'JK.pdf', dpi=300)

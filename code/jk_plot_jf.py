@@ -129,4 +129,3 @@ plt.annotate('objects in bin', xy=loc, xytext=loctext, fontsize=11, color=GRAY, 
              ha='left', arrowprops=linetype)
 
 fig.savefig(FOLDER_OUT_PLT + 'JK_JF.pdf', dpi=300)
-fig.savefig(FOLDER_GIT + 'JK_JF.pdf', dpi=300)

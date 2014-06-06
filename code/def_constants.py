@@ -6,8 +6,9 @@ Initialize variables used in all other scripts.
 ROOT = '/Users/alejo/Dropbox/'
 FOLDER_MAIN = ROOT + 'Project_0/'
 FOLDER_GIT = ROOT + 'Python/BDNYC_specfigures/' # Folder with ACCESS table (git-linked)
-FOLDER_DATA = FOLDER_MAIN + 'Data/'
-FOLDER_OUT_PLT = FOLDER_MAIN + 'Plots/'
+FOLDER_DATA = FOLDER_MAIN + 'data/'
+FOLDER_DATASPEC = FOLDER_MAIN + 'more data/'
+FOLDER_OUT_PLT = FOLDER_MAIN + 'plots/'
 FOLDER_OUT_TMPL = FOLDER_MAIN + 'templates/'
 
 # Colors
