@@ -18,6 +18,8 @@ INPUT:  1) spInput: Spectral type to select (e.g. L0).
         4) templ: Boolean, whether to get the average template spectrum
         5) std: Boolean, whether to get the spectral type NIR standard spectrum
         6) special: Boolean, whether to overplot special (pec, dusty, blue) objects
+        7) normalize: Boolean, whether to normalize spectra or not. Used for standard spectrum really.
+
         
 OUTPUT: 1) template (if templ=True) and NIR standard (if std=True)
            of selected spectra.
@@ -652,7 +654,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
     return fig
 
 
-def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
+def main(spInput, grav='', plot=True, templ=False, std=False, special=False, normalize=True):
     # 1. LOAD RELEVANT MODULES ---------------------------------------------------------
     from astropy.io import ascii
     import astrotools as at
@@ -663,7 +665,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     
     # 2. SET UP VARIABLES --------------------------------------------------------------
     # Customizable variables <><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    FOLDER_ROOT = '/Users/alejo/KCData/'  # Location of NIR and OPT folders
+    FOLDER_ROOT = '/Users/alejo/Dropbox/Project_0/Data/'  # Location of NIR and OPT folders
     FOLDER_IN = '/Users/alejo/Dropbox/Python/BDNYC_specfigures/' # Location of input files
     FOLDER_OUT = '/Users/alejo/Dropbox/Project_0/Plots/' # Location to save output figures
     FILE_IN = 'nir_spex_prism_with_optical.txt' # ASCII file w/ data
@@ -967,9 +969,14 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         if data[colNameRef][spIdx] == dataS[colNameRef][stdIdx]:
             stdObjs[idx] = True
             
-            O_standard[0] = spectraN['J'][idx]
-            O_standard[1] = spectraN['H'][idx]
-            O_standard[2] = spectraN['K'][idx]
+            if normalize:
+                O_standard[0] = spectraN['J'][idx]
+                O_standard[1] = spectraN['H'][idx]
+                O_standard[2] = spectraN['K'][idx]
+            else:
+                O_standard[0] = spectra['J'][idx]
+                O_standard[1] = spectra['H'][idx]
+                O_standard[2] = spectra['K'][idx]
     
     # 10.3 Determine which targets are young
     youngObjs = [False] * len(refs)
