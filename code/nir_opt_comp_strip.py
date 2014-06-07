@@ -18,6 +18,8 @@ INPUT:  1) spInput: Spectral type to select (e.g. L0).
         4) templ: Boolean, whether to get the average template spectrum
         5) std: Boolean, whether to get the spectral type NIR standard spectrum
         6) special: Boolean, whether to overplot special (pec, dusty, blue) objects
+        7) normalize: Boolean, whether to normalize spectra or not. Used for standard spectrum really.
+
         
 OUTPUT: 1) template (if templ=True) and NIR standard (if std=True)
            of selected spectra.
@@ -31,7 +33,7 @@ def addannot(specData, subPlot, bandName, classType):
     from scipy.stats import nanmean
     
     # 1) Initialize strings
-    TXT_SIZE = 7
+    TXT_SIZE = 9
     H2O   = 'H' + '$\sf_2$' + 'O'
     COH2O = 'CO+' + H2O
     H2OH2 = H2O + ' + H' + '$\sf_2$' + ' CIA'
@@ -57,7 +59,6 @@ def addannot(specData, subPlot, bandName, classType):
         ANNOT[1]  = ['K I',  (0.7665,0.7699), offK, 'Doublet']
         ANNOT[2]  = ['Rb I', (0.7800,0.7948),   60, 'Doublet']
         ANNOT[3]  = ['VO',   (0.7850,0.8000),    0, 'Band']
-        #ANNOT[4]  = ['Rb I',  0.7948,           62, 'Line']
         ANNOT[4]  = ['Na I', (0.8176,0.8200),   45, 'Doublet']
         ANNOT[5]  = ['TiO',  (0.8410,0.8550),    0, 'Band']
         ANNOT[6]  = ['Cs I',  0.8521,          -25, 'Line']
@@ -156,7 +157,7 @@ def addannot(specData, subPlot, bandName, classType):
             
             # Add the Earth symbol to telluric features
             if annotType.endswith('T'):
-                tellTextLoc = (textLoc[0], textLoc[1] - 6)
+                tellTextLoc = (textLoc[0], textLoc[1] - 7)
                 subPlot.annotate(EARTH, xy=annotLoc, xycoords='data', \
                              xytext=tellTextLoc, textcoords='offset points', \
                              fontsize=TXT_SIZE, ha='center', arrowprops=annLineType2)
@@ -232,19 +233,19 @@ def addannot(specData, subPlot, bandName, classType):
                     mult2 = 0.01
                 elif annotation[0] == 'TiO':
                     mult1 = 0.930
-                    mult2 = 0.005
+                    mult2 = 0.007
                 elif annotation[0] == 'CrH':
                     mult1 = 0.900
-                    mult2 = 0.005
+                    mult2 = 0.007
                 elif annotation[0] == 'VO' and bandName == 'OPT':
                     mult1 = 0.640
-                    mult2 = 0.005
+                    mult2 = 0.007
                 elif annotation[0] == 'VO' and bandName == 'J':
                     mult1 = 0.820
-                    mult2 = 0.005
+                    mult2 = 0.007
                 elif annotation[0] == 'FeH':
                     mult1 = 0.080
-                    mult2 = 0.028
+                    mult2 = 0.031
                     sign = -1
                 annotY = ylims[0] + y_range * mult1
                 
@@ -414,8 +415,8 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
     
     # 3) Initialize Figure ====================================================
     plt.close()
-    plt.rc('font', size=7)
-    fig = plt.figure(figNum, figsize=(11,4.25))
+    plt.rc('font', size=10)
+    fig = plt.figure(figNum, figsize=(12,4.25))
     plt.clf()
     
     # 4) Generate Subplots ====================================================
@@ -449,7 +450,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         
         # 4c) Initialize Subplot ----------------------------------------------
         subPlot = plt.figure(figNum).add_subplot(1,4,4 - bandIdx, \
-                            position=[0.16 + (3 - bandIdx) * 0.21,0.1,0.19,0.83])
+                            position=[0.19 + (3 - bandIdx) * 0.205,0.1,0.18,0.83])
                                                        # [left,bottom,width,height]
         subPlot.set_autoscale_on(False)
         
@@ -459,26 +460,22 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         
         # Set figure and axes labels
         if grav == 'Y':
-            plotType = ' young'
-        elif grav == 'B':
-            plotType = r'$\beta$'
-        elif grav == 'G':
-            plotType = r'$\gamma$'
+            plotType = 'low'
         elif grav == 'F':
-            plotType = ' field'
+            plotType = 'field'
         else:
             plotType = ''
         
-        title = classType
+        title1 = classType
         if plotType != '':
-            title = title + plotType
+            title2 = plotType + ' gravity'
         
         if bandIdx == 2:
             subPlot.set_xlabel(X_LABEL, position=(1.1,0.08))
         if bandIdx == 3:
-            subPlot.set_ylabel(Y_LABEL)
-            subPlot.set_title(title, fontsize=16, fontweight='bold', \
-                              position=(-0.01,0.88), ha='left')
+            subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.5))
+            subPlot.set_title(title1, fontsize=15, position=(0.01,0.92), ha='left')
+            subPlot.text(0.01,0.885, title2, fontsize=13, transform=subPlot.transAxes)
         
         # 4d) Determine order of spectra plotting -----------------------------
         zOrders = [None] * len(plotInstructions)
@@ -610,40 +607,40 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
 #                         xmax=limits[band]['lim'][1] * 1.001)
         
         # 4j) Customize y axis ------------------------------------------------
-        #subPlot.spines['left'].set_color('none')
-        #subPlot.spines['right'].set_color('none')
-        #subPlot.yaxis.set_ticks([])
+        subPlot.spines['left'].set_color('none')
+        subPlot.spines['right'].set_color('none')
+        subPlot.yaxis.set_ticks([])
         
         # 4k) Create and format legend (for J band only) ----------------------
         if band == 'J':
             objLegends = subPlot.legend(handlelength=0, handletextpad=0.1, \
                                       loc='upper left', \
-                                      bbox_to_anchor=(-1.93,0.97), \
+                                      bbox_to_anchor=(-2.2,0.97), \
                                       labelspacing=0.3, numpoints=1)
             objLegends.draw_frame(True)
             
             for legendIdx, legendText in enumerate(objLegends.get_texts()):                
                 plt.setp(legendText, color=textColors[legendIdx], \
-                         fontsize=7, fontname='Andale Mono')
+                         fontsize=9, fontname='Andale Mono')
             
             # Add Titles for the legends
             legendTitles1 = 'Optical'
             legendTitles2 = 'Coords.   SpType      J-K'
-            xCoord1 = -1.57
-            xCoord2 = -1.79
-            yCoord1 = 0.99
+            xCoord1 = -1.76
+            xCoord2 = -2.03
+            yCoord1 = 1.0
             yCoord2 = 0.964
-            subPlot.text(xCoord1, yCoord1, legendTitles1, fontsize=7, \
+            subPlot.text(xCoord1, yCoord1, legendTitles1, fontsize=9, \
                          transform=subPlot.transAxes)
-            subPlot.text(xCoord2, yCoord2, legendTitles2, fontsize=7, \
+            subPlot.text(xCoord2, yCoord2, legendTitles2, fontsize=9, \
                          transform=subPlot.transAxes)
         
         # Extra title labels
         if band == 'OPT':
-            subPlot.text(-0.01, 0.82, 'template', fontsize=13, fontweight='bold',  \
+            subPlot.text(0.01, 0.835, 'templates', fontsize=13,  \
                          transform=subPlot.transAxes)
             if plotSpecial:
-                subPlot.text(-0.01, 0.76, '& special objects', fontsize=10,  \
+                subPlot.text(0.01, 0.76, '& special objects', fontsize=10,  \
                              transform=subPlot.transAxes)
         
         # 4l) Add absorption annotations to Subplots --------------------------
@@ -657,7 +654,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
     return fig
 
 
-def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
+def main(spInput, grav='', plot=True, templ=False, std=False, special=False, normalize=True):
     # 1. LOAD RELEVANT MODULES ---------------------------------------------------------
     from astropy.io import ascii
     import astrotools as at
@@ -668,9 +665,9 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     
     # 2. SET UP VARIABLES --------------------------------------------------------------
     # Customizable variables <><><><><><><><><><><><><><><><><><><><><><><><><><><>
-    FOLDER_ROOT = '/Users/alejo/KCData/'  # Location of NIR and OPT folders
-    FOLDER_IN = '/Users/alejo/Dropbox/Python/BDNYC_specfigures/' # Location of input files
-    FOLDER_OUT = FOLDER_IN # Location to save output figures
+    FOLDER_ROOT = '/Users/alejo/Dropbox/Project_0/more data/'  # Location of NIR and OPT folders
+    FOLDER_IN = '/Users/alejo/Dropbox/Project_0/data/' # Location of input files
+    FOLDER_OUT = '/Users/alejo/Dropbox/Project_0/plots/' # Location to save output figures
     FILE_IN = 'nir_spex_prism_with_optical.txt' # ASCII file w/ data
     # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
     
@@ -688,6 +685,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
     # For TXT exclude-objects file
     EXCLPRE = 'comp_'
     EXCLPOST = '_s2.0_band_rejects.txt'
+    EXCLPOST_LG = 'lg_s2.0_band_rejects.txt'
     # The file below contains U#s of objects with weird optical spectra
     EXCL_FILE = 'Exclude_Objs.txt'
     
@@ -913,21 +911,23 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             break
     
     
-    # 10. CHARACTERIZE TARGETS (i.e. identify young, blue, to exclude...) --------------
+    # 10. CHARACTERIZE TARGETS (i.e. identify young, field) -----------------------------
     # 10.1 Determine which targets to exclude
     toExclude = [False] * len(refs)
                           
     # 10.1.1 Extract U#s from "Exclude_Objects" exclude file
-    dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR, \
-                          data_start=1)
-    excludeObjs = np.array(dataExcl['col1'], dtype='string')
-    # Find intersection of exclude-obj list and filtered targets list
-    setExclude = set(excludeObjs).intersection(set(refs))
-    # Create list with intersection targets
-    if len(setExclude) != 0:
-        for exclIdx in setExclude:
-            tmpExclIdx = np.where(np.array(refs) == exclIdx)[0]
-            toExclude[tmpExclIdx] = True 
+    grav = grav.upper()
+    if grav == 'F':
+        dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR, \
+                              data_start=1)
+        excludeObjs = np.array(dataExcl['col1'], dtype='string')
+        # Find intersection of exclude-obj list and filtered targets list
+        setExclude = set(excludeObjs).intersection(set(refs))
+        # Create list with intersection targets
+        if len(setExclude) != 0:
+            for exclIdx in setExclude:
+                tmpExclIdx = np.where(np.array(refs) == exclIdx)[0]
+                toExclude[tmpExclIdx] = True 
     
     # 10.1.2 Extract NIR file names from "comp_" exclude file
     exclFile = EXCLPRE + spInput.upper() + EXCLPOST
@@ -944,6 +944,24 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
                 tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
                 toExclude[tmpExclIdx] = True
     
+    # 10.1.3 Extract NIR file names from "comp_lg" exclude file
+    exclFile_LG = EXCLPRE + spInput.upper() + EXCLPOST_LG
+    try:
+        dataExcl_LG = ascii.read(FOLDER_IN + exclFile_LG, format='no_header', \
+                                 delimiter=DELL_CHAR, comment=COMM_CHAR)
+    except:
+        dataExcl_LG = []
+    if len(dataExcl_LG) > 0:
+        excludeObjs_LG = np.array(dataExcl_LG['col1']).astype(object)
+        excludeObjs_LG = excludeObjs_LG + np.repeat('.fits', len(dataExcl_LG))
+        # Find intersection of exclude-obj list and filtered targets list
+        setExclude_LG = set(excludeObjs_LG).intersection(set(NIRfilenames))
+        # Create list with intersection targets
+        if len(setExclude_LG) != 0:
+            for exclIdx in setExclude_LG:
+                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
+                toExclude[tmpExclIdx] = True
+    
     # 10.2 Determine which target is the NIR Standard object
     O_standard = [None] * 3 # Holds standard for output
     stdObjs = [False] * len(refs)
@@ -951,35 +969,14 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         if data[colNameRef][spIdx] == dataS[colNameRef][stdIdx]:
             stdObjs[idx] = True
             
-            O_standard[0] = spectraN['J'][idx]
-            O_standard[1] = spectraN['H'][idx]
-            O_standard[2] = spectraN['K'][idx]
-    
-    # The following filters should not occur in this code any more ****
-    # Determine which targets are blue
-    blueObjs = [False] * len(refs)
-    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
-    #    if data[colNameBlue][spIdx].upper() == 'YES':
-    #        blueObjs[idx] = True
-    
-    # Determine which targets are dusty
-    dustyObjs = [False] * len(refs)
-    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
-    #    if data[colNameDust][spIdx].upper() == 'YES':
-    #        dustyObjs[idx] = True
-    
-    # Determine which targets are binary
-    binaryObjs = [False] * len(refs)
-    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
-    #    if data[colNameBin][spIdx].upper() == 'YES':
-    #        binaryObjs[idx] = True
-    
-    # Determine which targets are peculiar
-    pecObjs = [False] * len(refs)
-    #for idx,spIdx in enumerate(specIdx[specSortIdx]):
-    #    if data[colNamePec][spIdx].upper() == 'YES':
-    #        pecObjs[idx] = True
-    # *****************************************************************
+            if normalize:
+                O_standard[0] = spectraN['J'][idx]
+                O_standard[1] = spectraN['H'][idx]
+                O_standard[2] = spectraN['K'][idx]
+            else:
+                O_standard[0] = spectra['J'][idx]
+                O_standard[1] = spectra['H'][idx]
+                O_standard[2] = spectra['K'][idx]
     
     # 10.3 Determine which targets are young
     youngObjs = [False] * len(refs)
@@ -987,92 +984,33 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         if data[colNameYng][spIdx].upper() == 'YES':
             youngObjs[idx] = True
     
-    # 10.4 Determine which targets are GAMMA
-    gammaObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        tmpType = data[colNameType][spIdx].encode('utf-8')
-        tmpLen  = len(tmpType)
-        utcA = tmpType[tmpLen - 2]
-        utcB = tmpType[tmpLen - 1]
-        # GAMMA in utf-8 code is "\xce\xb3"
-        if utcA == '\xce' and utcB == '\xb3':
-            gammaObjs[idx] = True
-    
-    # 10.5 Determine which targets are BETA
-    betaObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        tmpType = data[colNameType][spIdx].encode('utf-8')
-        tmpLen  = len(tmpType)
-        utcA = tmpType[tmpLen - 2]
-        utcB = tmpType[tmpLen - 1]
-        # GAMMA in utf-8 code is "\xce\xb2"
-        if utcA == '\xce' and utcB == '\xb2':
-            betaObjs[idx] = True
-    
     # 10.6 Determine which targets to include in plots (based on user input)
     # Consolidate plotting & template-flux instructions
-    grav = grav.upper()
     plotInstructions  = ['exclude'] * len(refs)
     templInstructions = [False] * len(refs)
-    if grav == 'Y': # If plot request is Young, include gamma, beta & young targets
+    if grav == 'Y': # If plot request is Young
         for plotIdx in range(len(refs)):
             if toExclude[plotIdx]:
                 continue
-            if gammaObjs[plotIdx] or betaObjs[plotIdx] or youngObjs[plotIdx]:
-                if blueObjs[plotIdx] or dustyObjs[plotIdx]:
-                    continue
-                plotInstructions[plotIdx] = 'young'
-                templInstructions[plotIdx] = True
-    
-    elif grav == 'G': # If plot request is Gamma, include only gamma targets
-        for plotIdx in range(len(plotInstructions)):
-            if toExclude[plotIdx]:
-                continue
-            if gammaObjs[plotIdx]:
-                if blueObjs[plotIdx] or dustyObjs[plotIdx]:
-                    continue
-                plotInstructions[plotIdx] = 'young'
-                templInstructions[plotIdx] = True
-    
-    elif grav == 'B': # If plot request is Beta, include only beta targets
-        for plotIdx in range(len(plotInstructions)):
-            if toExclude[plotIdx]:
-                continue
-            if betaObjs[plotIdx]:
-                if blueObjs[plotIdx] or dustyObjs[plotIdx]:
-                    continue
-                plotInstructions[plotIdx] = 'young'
+            if youngObjs[plotIdx]:
+                plotInstructions[plotIdx] = 'low'
                 templInstructions[plotIdx] = True
     
     elif grav == 'F': # If plot request is Field, include Field & Standard targets
         for plotIdx in range(len(plotInstructions)):
             if toExclude[plotIdx]:
                 continue
-            if betaObjs[plotIdx] or gammaObjs[plotIdx] or youngObjs[plotIdx]:
-                continue
-            if blueObjs[plotIdx] or dustyObjs[plotIdx] or binaryObjs[plotIdx] \
-                                                       or pecObjs[plotIdx]:
-                plotInstructions[plotIdx] = 'special'
-            elif stdObjs[plotIdx]:
-                plotInstructions[plotIdx] = 'standard'
-                templInstructions[plotIdx] = True
-            else:
-                plotInstructions[plotIdx] = 'field'
-                templInstructions[plotIdx] = True
-    
-    else:   # Otherwise, print Field, gamma, beta, young & Standard targets
-        for plotIdx in range(len(plotInstructions)):
-            if toExclude[plotIdx]:
-                continue
-            if blueObjs[plotIdx] or dustyObjs[plotIdx]:
-                continue
             if youngObjs[plotIdx]:
-                plotInstructions[plotIdx] = 'young'
+                continue
             elif stdObjs[plotIdx]:
                 plotInstructions[plotIdx] = 'standard'
+                templInstructions[plotIdx] = True
             else:
                 plotInstructions[plotIdx] = 'field'
-            templInstructions[plotIdx] = True
+                templInstructions[plotIdx] = True
+    else:
+        print 'Wrong gravity.'
+        return
     
     # If all plot instructions are "exclude", then stop procedure (for spectral types)
     allExcl = True
@@ -1180,16 +1118,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
             tmpJK     = data[colNameJK][spIdx]
             
             # Append description of special object to its spectral type when missing
-            if binaryObjs[posIdx]:
-                spDesc = 'bin'
-            elif blueObjs[posIdx]:
-                spDesc = 'blue'
-            elif dustyObjs[posIdx]:
-                spDesc = 'dust'
-            elif pecObjs[posIdx]:
-                spDesc = 'pec'
-            else:
-                spDesc = ''
+            spDesc = ''
             try:
                 loc = data[colNameType][spIdx].index(spDesc)
             except ValueError:
@@ -1215,7 +1144,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False):
         else:
             sptxt = ''
         figObj.savefig(FOLDER_OUT + spTypeInput + 'strip_' + \
-                      grav.lower() + sptxt + '.pdf', dpi=600)
+                      grav.lower() + sptxt + '.pdf', dpi=300)
     
     
     # 14. DETERMINE OUTPUT -------------------------------------------------------------

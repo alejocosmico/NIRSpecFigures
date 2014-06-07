@@ -195,3 +195,5 @@ Ref	Designation Text	J	H	K	SpType	SpTpye String	IRTF obs	IRTF Tel	IRTF File	Obs	
 50068	15 23 22.63 +30 14 56.2	16.06	14.93	14.348	18	L8	Adam	IRTF	U50068_Gl584C_20080508_BUR10A.fits	Davy	Keck II	LRIS	U50068_gl584c_davy.fits	No	No	No	No	No
 50006	16 32 29.11 +19 04 40.7	15.867	14.61	14.003	18	L8	#Sep-03	IRTF	2M1632.fits	known	Keck II	LRIS	U50006_1632+1904_lris.fits	No	No	No	No	No
 13227	23 25 45.3 +42 51 48	15.493	14.45	13.764	18	L8	#Aug-03	IRTF	U13227.fits	GN-04B	GN	GMOS	U13227.fits	No	No	No	No	No
+# 50171 added manually because it has no optical spectrum -- REMOVED UNTIL WE GET GOOD OPTICAL - APRIL 10 2013 - need to un-comment it when plotting standards
+50171	08 35 06.23 +19 53 05.05	16.094	14.889	14.319	15	L5			prism_0835+1953_20050123_CHI06A.fits				prism_0835+1953_20050123_CHI06A.fits	No	No	No	No	No
