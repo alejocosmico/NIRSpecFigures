@@ -53,6 +53,7 @@ plt.close()
 fig = plt.figure(1, figsize=(8,8))
 plt.clf()
 plt.rc('font', size=15)
+plt.rc('hatch', linewidth=0.9)
 ax = fig.add_axes([0.09,0.08,0.88,0.89]) # left, bottom, width, height
 
 bns = np.arange(10,20,1)
