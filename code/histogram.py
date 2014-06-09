@@ -12,10 +12,10 @@ execfile('def_constants.py')
 # Read data
 dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
 data = np.array(dataraw).T
-sptypes = data[:,4].astype('float')
-categories_raw = data[:,6]
-nirages = data[:,7]
-optages = data[:,8]
+sptypes = data[1:,4].astype('float')
+categories_raw = data[1:,6]
+nirages = data[1:,7]
+optages = data[1:,8]
 
 # Format some columns
 categories = np.zeros(categories_raw.shape)
