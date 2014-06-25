@@ -2,7 +2,7 @@ The naming convention of the ascii files is the following:
 
 Spectral type + Band + Gravity
 
-Gravity can be 'f' (field objects), 'b' (beta), or 'g' (gamma).
+Gravity can be 'f' (field objects) or 'lg' (low gravity objects).
 
 So, for instance, L1H_f.txt is the template for the H band of the field L1 objects.
 
