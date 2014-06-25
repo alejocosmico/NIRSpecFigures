@@ -18,6 +18,7 @@ SPTYPESN = np.array(SPTYPESN)
 # Read data
 dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
 data = np.array(dataraw).T
+data = np.delete(data, 0 , axis=0) # Delete first row (headers)
 sptypes = data[:,4].astype('float')
 jks = data[:,2].astype('float')
 jksuncs = data[:,3].astype('float')
@@ -35,9 +36,9 @@ jksavgs = []
 extremes = []
 counts = []
 for ist, sptp in enumerate(SPTYPESN):
-    isptp = np.where(sptypes == sptp)[0]
-    jksavgs.append(np.average(jks[isptp]))
-    extremes.append([jks[isptp].min(), jks[isptp].max()])
+    isptp = np.where(sptypes[ifg] == sptp)[0]
+    jksavgs.append(np.average(jks[ifg[isptp]]))
+    extremes.append([jks[ifg[isptp]].min(), jks[ifg[isptp]].max()])
     counts.append(len(isptp))
 extremes = np.array(extremes)
 
@@ -52,8 +53,8 @@ ax = fig.add_axes([0.12,0.09,0.86,0.88]) # left, bottom, width, height
 extremes_JF = EXTREMES.T.copy()
 extremes_JF[0,:] = JKAVGS - extremes_JF[0,:]
 extremes_JF[1,:] = extremes_JF[1,:] - JKAVGS
-ax.errorbar(SPTYPESN-0.1, JKAVGS, yerr=extremes_JF, ecolor=RED, linestyle='', marker='o', \
-            markersize=10, markerfacecolor=RED, markeredgecolor='none', markeredgewidth=1.1)
+ax.errorbar(SPTYPESN-0.1, JKAVGS, yerr=extremes_JF, ecolor=L_BLUE, linestyle='', marker='o', \
+            markersize=10, markerfacecolor=L_BLUE, markeredgecolor='none', markeredgewidth=1.1)
 
 # Plot Kelle data
 extremes_KC = extremes.T.copy()
@@ -64,13 +65,21 @@ ax.errorbar(SPTYPESN+0.1, jksavgs, yerr=extremes_KC, ecolor=BLACK, linestyle='',
 
 # Annotate top of Faherty bars
 for idxc, count in enumerate(COUNTS):
-    loc = (idxc+9.9, EXTREMES[idxc,1]+0.01)
+    if idxc == 5:
+        xoff = 9.8
+    else:
+        xoff = 9.9
+    loc = (idxc + xoff, EXTREMES[idxc,1]+0.01)
     ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=11, \
             ha='center')
 
 # Annotate top of Kelle bars
 for idxc, count in enumerate(counts):
-    loc = (idxc+10.1, extremes[idxc,1]+0.01)
+    if idxc == 5:
+        xoff = 10.2
+    else:
+        xoff = 10.1
+    loc = (idxc + xoff, extremes[idxc,1]+0.01)
     ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=11, \
             ha='center')
 
@@ -103,16 +112,16 @@ ax.set_axisbelow(True)
 
 # Annotate Faherty data
 loc = (15-0.1, 1.2)
-loctext = (14.7, 0.87)
-linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=RED, relpos=(1,0))
-plt.annotate('Faherty et al. \'13', xy=loc, xytext=loctext, fontsize=14, color=RED, \
+loctext = (14.7, 0.88)
+linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=L_BLUE, relpos=(1,0))
+plt.annotate('Faherty et al. \'13', xy=loc, xytext=loctext, fontsize=14, color=L_BLUE, \
              ha='right', arrowprops=linetype)
-loctext = (14.7, 0.805)
-plt.annotate('photometric sample', xy=loc, xytext=loctext, fontsize=14, color=RED, \
+loctext = (14.7, 0.815)
+plt.annotate('photometric sample', xy=loc, xytext=loctext, fontsize=14, color=L_BLUE, \
              ha='right')
 
 # Annotate Kelle data
-loc = (15+0.1, 1.4)
+loc = (15+0.1, 1.51)
 loctext = (15.5, 1.27)
 linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=BLACK, relpos=(0,0))
 plt.annotate('field gravity', xy=loc, xytext=loctext, fontsize=14, color=BLACK, \
