@@ -7,13 +7,12 @@ NEEDED: 1) FILE_IN: ASCII tab-delimited txt file with data for each object
            (columns are in HDR_FILE_IN).
         2) FILE_IN_STD: ASCII tab-delimited txt file with data for standard NIR objects
            (columns are in HDR_FILE_IN_STD).
-        3) EXCL_FILE: ASCII tab-delimite txt file with list of U#s of objects to exclude
-        4) FOLDER_ROOT: Folder containing all .fits files (which are stored in two folders: OPT and NIR.
-        5) FOLDER_IN: Folder containing (1)-(3) above
-        6) FOLDER_OUT: Folder to store output.
+        3) FOLDER_ROOT: Folder containing all .fits files (which are stored in two folders: OPT and NIR.
+        4) FOLDER_IN: Folder containing (1)-(3) above
+        5) FOLDER_OUT: Folder to store output.
 
 INPUT:  1) spInput: Spectral type to select (e.g. L0).
-        2) grav:   All young: y, Gamma: g, Beta: b, Field: f, All: leave blank.
+        2) grav:   Low: lg, Field: f.
         3) plot: Boolean, whether to plot result
         4) templ: Boolean, whether to get the average template spectrum
         5) std: Boolean, whether to get the spectral type NIR standard spectrum
@@ -459,7 +458,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
 #        ax2 = subPlot.axes.twiny()
         
         # Set figure and axes labels
-        if grav == 'Y':
+        if grav == 'LG':
             plotType = 'low'
         elif grav == 'F':
             plotType = 'field'
@@ -682,12 +681,10 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
     colNameNIRS = HDR_FILE_IN_STD[2]
     colNameOPTS = HDR_FILE_IN_STD[3]
     
-    # For TXT exclude-objects file
-    EXCLPRE = 'comp_'
-    EXCLPOST = '_s2.0_band_rejects.txt'
-    EXCLPOST_LG = 'lg_s2.0_band_rejects.txt'
-    # The file below contains U#s of objects with weird optical spectra
-    EXCL_FILE = 'Exclude_Objs.txt'
+    # For TXT include-objects files
+    INCLPRE = 'comp_'
+    INCLPOST = '_s2.0_band_keepers.txt'
+    INCLPOST_LG = 'lg_s2.0_band_keepers.txt'
     
     OPTNIR_KEYS = ['OPT','NIR']
     BANDS_NAMES = ['K','H','J','OPT']
@@ -911,56 +908,44 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
             break
     
     
-    # 10. CHARACTERIZE TARGETS (i.e. identify young, field) -----------------------------
-    # 10.1 Determine which targets to exclude
-    toExclude = [False] * len(refs)
-                          
-    # 10.1.1 Extract U#s from "Exclude_Objects" exclude file
+    # 10. CHARACTERIZE TARGETS (i.e. identify young & field) ----------------------------
     grav = grav.upper()
-    if grav == 'F':
-        dataExcl = ascii.read(FOLDER_IN + EXCL_FILE, format='no_header', delimiter=DELL_CHAR, \
-                              data_start=1)
-        excludeObjs = np.array(dataExcl['col1'], dtype='string')
-        # Find intersection of exclude-obj list and filtered targets list
-        setExclude = set(excludeObjs).intersection(set(refs))
-        # Create list with intersection targets
-        if len(setExclude) != 0:
-            for exclIdx in setExclude:
-                tmpExclIdx = np.where(np.array(refs) == exclIdx)[0]
-                toExclude[tmpExclIdx] = True 
+    # 10.1 Determine which targets to include
+    toInclude = [False] * len(refs)
+    toInclude_LG = [False] * len(refs)
     
-    # 10.1.2 Extract NIR file names from "comp_" exclude file
-    exclFile = EXCLPRE + spInput.upper() + EXCLPOST
-    dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', delimiter=DELL_CHAR, \
+    # 10.1.1 Extract NIR file names from "comp_" include file
+    inclFile = INCLPRE + spInput.upper() + INCLPOST
+    dataIncl = ascii.read(FOLDER_IN + inclFile, format='no_header', delimiter=DELL_CHAR, \
                           comment=COMM_CHAR)
-    if len(dataExcl) > 0:
-        excludeObjs = np.array(dataExcl['col1']).astype(object)
-        excludeObjs = excludeObjs + np.repeat('.fits', len(dataExcl))
-        # Find intersection of exclude-obj list and filtered targets list
-        setExclude = set(excludeObjs).intersection(set(NIRfilenames))
+    if len(dataIncl) > 0:
+        includeObjs = np.array(dataIncl['col1']).astype(object)
+        includeObjs = includeObjs + np.repeat('.fits', len(dataIncl))
+        # Find intersection of include-obj list and filtered targets list
+        setInclude = set(includeObjs).intersection(set(NIRfilenames))
         # Create list with intersection targets
-        if len(setExclude) != 0:
-            for exclIdx in setExclude:
-                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
-                toExclude[tmpExclIdx] = True
+        if len(setInclude) != 0:
+            for inclIdx in setInclude:
+                tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
+                toInclude[tmpInclIdx] = True
     
-    # 10.1.3 Extract NIR file names from "comp_lg" exclude file
-    exclFile_LG = EXCLPRE + spInput.upper() + EXCLPOST_LG
+    # 10.1.2 Extract NIR file names from "comp_lg" include file
+    inclFile_LG = INCLPRE + spInput.upper() + INCLPOST_LG
     try:
-        dataExcl_LG = ascii.read(FOLDER_IN + exclFile_LG, format='no_header', \
+        dataIncl_LG = ascii.read(FOLDER_IN + inclFile_LG, format='no_header', \
                                  delimiter=DELL_CHAR, comment=COMM_CHAR)
     except:
-        dataExcl_LG = []
-    if len(dataExcl_LG) > 0:
-        excludeObjs_LG = np.array(dataExcl_LG['col1']).astype(object)
-        excludeObjs_LG = excludeObjs_LG + np.repeat('.fits', len(dataExcl_LG))
-        # Find intersection of exclude-obj list and filtered targets list
-        setExclude_LG = set(excludeObjs_LG).intersection(set(NIRfilenames))
+        dataIncl_LG = []
+    if len(dataIncl_LG) > 0:
+        includeObjs_LG = np.array(dataIncl_LG['col1']).astype(object)
+        includeObjs_LG = includeObjs_LG + np.repeat('.fits', len(dataIncl_LG))
+        # Find intersection of include-obj list and filtered targets list
+        setInclude_LG = set(includeObjs_LG).intersection(set(NIRfilenames))
         # Create list with intersection targets
-        if len(setExclude_LG) != 0:
-            for exclIdx in setExclude_LG:
-                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
-                toExclude[tmpExclIdx] = True
+        if len(setInclude_LG) != 0:
+            for inclIdx in setInclude_LG:
+                tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
+                toInclude_LG[tmpInclIdx] = True
     
     # 10.2 Determine which target is the NIR Standard object
     O_standard = [None] * 3 # Holds standard for output
@@ -978,38 +963,27 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
                 O_standard[1] = spectra['H'][idx]
                 O_standard[2] = spectra['K'][idx]
     
-    # 10.3 Determine which targets are young
-    youngObjs = [False] * len(refs)
-    for idx,spIdx in enumerate(specIdx[specSortIdx]):
-        if data[colNameYng][spIdx].upper() == 'YES':
-            youngObjs[idx] = True
-    
-    # 10.6 Determine which targets to include in plots (based on user input)
+    # 10.3 Determine which targets to include in plots (based on user input)
     # Consolidate plotting & template-flux instructions
     plotInstructions  = ['exclude'] * len(refs)
     templInstructions = [False] * len(refs)
-    if grav == 'Y': # If plot request is Young
+    if grav == 'LG': # If plot request is Low gravity
         for plotIdx in range(len(refs)):
-            if toExclude[plotIdx]:
-                continue
-            if youngObjs[plotIdx]:
+            if toInclude_LG[plotIdx]:
                 plotInstructions[plotIdx] = 'low'
                 templInstructions[plotIdx] = True
     
     elif grav == 'F': # If plot request is Field, include Field & Standard targets
         for plotIdx in range(len(plotInstructions)):
-            if toExclude[plotIdx]:
-                continue
-            if youngObjs[plotIdx]:
-                continue
+            if toInclude[plotIdx]:
+                plotInstructions[plotIdx] = 'field'
+                templInstructions[plotIdx] = True
             elif stdObjs[plotIdx]:
                 plotInstructions[plotIdx] = 'standard'
                 templInstructions[plotIdx] = True
-            else:
-                plotInstructions[plotIdx] = 'field'
-                templInstructions[plotIdx] = True
+
     else:
-        print 'Wrong gravity.'
+        print 'Wrong gravity input.'
         return
     
     # If all plot instructions are "exclude", then stop procedure (for spectral types)

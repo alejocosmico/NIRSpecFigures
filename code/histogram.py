@@ -12,10 +12,10 @@ execfile('def_constants.py')
 # Read data
 dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
 data = np.array(dataraw).T
-sptypes = data[:,4].astype('float')
-categories_raw = data[:,6]
-nirages = data[:,7]
-optages = data[:,8]
+sptypes = data[1:,4].astype('float')
+categories_raw = data[1:,6]
+nirages = data[1:,7]
+optages = data[1:,8]
 
 # Format some columns
 categories = np.zeros(categories_raw.shape)
@@ -53,6 +53,7 @@ plt.close()
 fig = plt.figure(1, figsize=(8,8))
 plt.clf()
 plt.rc('font', size=15)
+plt.rc('hatch', linewidth=0.9)
 ax = fig.add_axes([0.09,0.08,0.88,0.89]) # left, bottom, width, height
 
 bns = np.arange(10,20,1)
