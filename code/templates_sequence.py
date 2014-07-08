@@ -1,5 +1,5 @@
 '''
-
+Reads templates files in templates/folder and plots them as sequences. The variable DIVISIONS defines the breakdown. e.g. DIVISIONS=[0,5,9] means that templates are divided into 2 sequences: L0-L4 and L5-L8.
 '''
 
 from astropy.io import ascii
@@ -17,10 +17,10 @@ grav = raw_input('Enter gravity (f or lg): ').lower()
 
 # Break down template sequence for plotting
 if grav == 'f':
-    DIVISIONS = [0,5,9]
+    DIVISIONS = [0,5,9] # EDIT THIS ARRAY TO BREAK DOWN FIELD SEQUENCE
     TITLE = 'Field gravity'
 elif grav == 'lg':
-    DIVISIONS = [0,3,6]
+    DIVISIONS = [0,3,6] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = 'Low gravity'
 
 # Arrays to hold template data
