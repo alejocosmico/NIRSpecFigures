@@ -1,0 +1,7 @@
+# 4 L7 dwarfs rejected from template construction because 
+# reduced chi2 > 1.40000 in any band (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+D0205 	20.2039	41.7846	9.24667
+U10802 	61.6746	21.1003	8.09392
+U20052_2M0107_dagny 	5.50009	12.2035	2.43057
+U50207_0015+2959_KIR10 	37.3074	17.7342	7.46664
