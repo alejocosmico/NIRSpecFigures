@@ -1,6 +1,6 @@
 ''' 
 The main() procedure plots normalized spectral data in the Optical, J, H, and K bands
-(sorted by J-K magnitudes) for a given spectral type. It combines all spectra into an average template and a range strip. It can overplot special objects on top of the template & strip.
+(sorted by J-K magnitudes) for a given spectral type. It combines all spectra into an average template and a range strip. It can overplot excluded objects on top of the template & strip.
 
 NEEDED: 1) FILE_IN: ASCII tab-delimited txt file with data for each object
            (Access query is "nir_spex_prism_with_optical")
@@ -16,7 +16,7 @@ INPUT:  1) spInput: Spectral type to select (e.g. L0).
         3) plot: Boolean, whether to plot result
         4) templ: Boolean, whether to get the average template spectrum
         5) std: Boolean, whether to get the spectral type NIR standard spectrum
-        6) special: Boolean, whether to overplot special (pec, dusty, blue) objects
+        6) excluded: Boolean, whether to overplot excluded objects
         7) normalize: Boolean, whether to normalize spectra or not. Used for standard spectrum really.
 
         
@@ -325,7 +325,7 @@ def addannot(specData, subPlot, bandName, classType):
     return
 
 
-def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstructions=None, plotSpecial=False, figNum=1):
+def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstructions=None, plotExcluded=False, figNum=1):
 # Plots set of spectral data and saves plots in a PDF file.
 # specData and limits must be dictionaries.
     
@@ -432,7 +432,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         maxPlot = 1
         
         # Count the number of plots in order to select color set
-        tmpSp = np.where(np.array(plotInstructions) == 'special')
+        tmpSp = np.where(np.array(plotInstructions) == 'excluded')
         specNum = len(tmpSp[0])
         
         # Select color set based on count above
@@ -455,7 +455,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         
         # Create dummy axes instance to be able to later manipulate upper axis
         # *This does not work properly as of latest matplotlib version (1.2.0)*
-#        ax2 = subPlot.axes.twiny()
+        # ax2 = subPlot.axes.twiny()
         
         # Set figure and axes labels
         if grav == 'LG':
@@ -468,19 +468,25 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         title1 = classType
         if plotType != '':
             title2 = plotType + ' gravity'
-        
         if bandIdx == 2:
             subPlot.set_xlabel(X_LABEL, position=(1.1,0.08))
         if bandIdx == 3:
             subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.5))
-            subPlot.set_title(title1, fontsize=15, position=(0.01,0.92), ha='left')
-            subPlot.text(0.01,0.885, title2, fontsize=13, transform=subPlot.transAxes)
+            subPlot.set_title(title1, fontsize=13, fontweight='bold', \
+                              position=(0.01,0.92), ha='left')
+            subPlot.text(0.01,0.885, title2, fontsize=12, transform=subPlot.transAxes)
+            subPlot.text(0.01,0.835, 'templates', fontsize=12, transform=subPlot.transAxes)
+            if plotExcluded:
+                subPlot.text(0.01, 0.788, '& excluded', fontsize=11, \
+                             transform=subPlot.transAxes)
+                subPlot.text(0.01, 0.745, 'objects', fontsize=11, \
+                             transform=subPlot.transAxes)
         
         # 4d) Determine order of spectra plotting -----------------------------
         zOrders = [None] * len(plotInstructions)
         countColor = specNum
         for plotIdx,plot in enumerate(plotInstructions):
-            if plot == 'special':
+            if plot == 'excluded':
                 zOrders[plotIdx] = 10 + specNum - countColor
                 countColor = countColor - 1
             elif plot == 'template':
@@ -521,17 +527,20 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
                 continue
             
             plotInstr = plotInstructions[specIdx]
-            if plotInstr == 'exclude':
+            if plotInstr == 'no':
                 continue
-            # Skip special objects if only template requested to be plotted
-            if not plotSpecial and plotInstr == 'special':
-                    continue
+            # Skip excluded objects if only template requested to be plotted
+            if not plotExcluded and plotInstr == 'excluded':
+                continue
+            # Skip field/low-g objects if excluded objects are to be plotted
+            if plotExcluded and (plotInstr != 'template' and plotInstr != 'excluded'):
+                continue
             
             # Set lines styles
             lnStyle = '-'
             if plotInstr == 'template':
                 lnWidth = 0.9 #1.1
-            elif plotInstr == 'special':
+            elif plotInstr == 'excluded':
                 lnWidth = 0.5
             else:
                 lnWidth = 0.1
@@ -547,7 +556,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
                 plotColor = BLACK
                 legColor  = DGRAY
                 alpha     = 0.8
-            elif plotInstr == 'special':
+            elif plotInstr == 'excluded':
                 plotColor   = plotColors[countColors] # Color for plot line
                 legColor    = plotColor               # Color for legend text
                 alpha       = 1.0
@@ -559,7 +568,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
             
             # Plot the damned thing
             if band == 'OPT' and plotInstr == 'template':
-                    continue
+                continue
             if band == 'J':
                 textColors.append(legColor) # Colors for legend labels
             
@@ -573,16 +582,17 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
                     continue
             
             subPlot.plot(spec[0], spec[1], color=plotColor, linestyle=lnStyle, \
-                    dash_joinstyle='round', linewidth=lnWidth, label=objLabel, \
-                    drawstyle='steps-mid', zorder=zOrders[specIdx], alpha=alpha)
+                         dash_joinstyle='round', linewidth=lnWidth, \
+                         label=objLabel, drawstyle='steps-mid', \
+                         zorder=zOrders[specIdx], alpha=alpha)
             
             # Plot a dummy line on secondary axis to later modify upper x-axis
             # *Does not work properly as of latest matplotlib version*
-#            if specIdx == 0:
-#                ax2.plot(spec[0],[-0.5] * len(spec[0]), color=WHITE)
+            # if specIdx == 0:
+            # ax2.plot(spec[0],[-0.5] * len(spec[0]), color=WHITE)
                 
             # Track the highest & lowest y-axis values to fix y-axis limits later
-            if plotInstr != 'exclude':
+            if plotInstr != 'no':
                 tmpMin = np.nanmin(spec[1])
                 if tmpMin < minPlot:
                     minPlot = tmpMin
@@ -602,8 +612,8 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
         plt.ylim(ymin=minPlot, ymax=maxPlot)
         subPlot.set_xlim(xmin=limits[band]['lim'][0], \
                          xmax=limits[band]['lim'][1] * 1.001)
-#        ax2.set_xlim(xmin=limits[band]['lim'][0], \
-#                         xmax=limits[band]['lim'][1] * 1.001)
+        # ax2.set_xlim(xmin=limits[band]['lim'][0], \
+        #              xmax=limits[band]['lim'][1] * 1.001)
         
         # 4j) Customize y axis ------------------------------------------------
         subPlot.spines['left'].set_color('none')
@@ -634,31 +644,24 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None,plotInstru
             subPlot.text(xCoord2, yCoord2, legendTitles2, fontsize=9, \
                          transform=subPlot.transAxes)
         
-        # Extra title labels
-        if band == 'OPT':
-            subPlot.text(0.01, 0.835, 'templates', fontsize=13,  \
-                         transform=subPlot.transAxes)
-            if plotSpecial:
-                subPlot.text(0.01, 0.76, '& special objects', fontsize=10,  \
-                             transform=subPlot.transAxes)
-        
         # 4l) Add absorption annotations to Subplots --------------------------
         # Sent to addannot only spectra plotted
         specsAnnot = []
         for idxSpec,spec in enumerate(specData[band]):
-            if plotInstructions[idxSpec] != 'exclude':
+            if plotInstructions[idxSpec] != 'no':
                 specsAnnot.append(spec)
         addannot(filter(None, specsAnnot), subPlot, band, classType)
     
     return fig
 
 
-def main(spInput, grav='', plot=True, templ=False, std=False, special=False, normalize=True):
+def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, normalize=True):
     # 1. LOAD RELEVANT MODULES ---------------------------------------------------------
     from astropy.io import ascii
     import astrotools as at
     import numpy as np
     import sys
+    import os
     import pdb
     import matplotlib.pyplot as plt
     
@@ -680,11 +683,6 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
     HDR_FILE_IN_STD = ('Ref','Designation','NIR SpType','OPT SpType')
     colNameNIRS = HDR_FILE_IN_STD[2]
     colNameOPTS = HDR_FILE_IN_STD[3]
-    
-    # For TXT include-objects files
-    INCLPRE = 'comp_'
-    INCLPOST = '_s2.0_band_keepers.txt'
-    INCLPOST_LG = 'lg_s2.0_band_keepers.txt'
     
     OPTNIR_KEYS = ['OPT','NIR']
     BANDS_NAMES = ['K','H','J','OPT']
@@ -735,11 +733,11 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
     BAND_LIMS['K'  ]['limN'][1] = 2.39
     
     
-    # 3. READ DATA FROM INPUT FILES ----------------------------------------------------
+    # 3. READ DATA FROM MAIN INPUT FILE -------------------------------------------------
     DELL_CHAR = '\t' # Delimiter character
     COMM_CHAR = '#'  # Comment character
     
-    # File with objects (source: query in Access)
+    # File with ALL objects (source: query in Access)
     dataRaw = ascii.read(FOLDER_IN + FILE_IN, format='no_header', \
                          delimiter=DELL_CHAR, comment=COMM_CHAR, data_start=1)
     
@@ -908,16 +906,24 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
             break
     
     
-    # 10. CHARACTERIZE TARGETS (i.e. identify young & field) ----------------------------
+    # 10. CHARACTERIZE TARGETS (i.e. identify young, field, and excluded) ---------------
     grav = grav.upper()
-    # 10.1 Determine which targets to include
     toInclude = [False] * len(refs)
     toInclude_LG = [False] * len(refs)
+    toExclude = [False] * len(refs)
+    dataIncl = []
+    dataIncl_LG = []
+    dataExcl = []
     
-    # 10.1.1 Extract NIR file names from "comp_" include file
-    inclFile = INCLPRE + spInput.upper() + INCLPOST
+    # 10.1 Extract NIR file names from FIELD "keepers" file
+    fileslist = os.listdir(FOLDER_IN)
+    inclFile = ''
+    for fl in fileslist:
+        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find('lg') == -1:
+            inclFile = fl
+            break
     dataIncl = ascii.read(FOLDER_IN + inclFile, format='no_header', delimiter=DELL_CHAR, \
-                          comment=COMM_CHAR)
+                              comment=COMM_CHAR)
     if len(dataIncl) > 0:
         includeObjs = np.array(dataIncl['col1']).astype(object)
         includeObjs = includeObjs + np.repeat('.fits', len(dataIncl))
@@ -929,13 +935,15 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
                 tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
                 toInclude[tmpInclIdx] = True
     
-    # 10.1.2 Extract NIR file names from "comp_lg" include file
-    inclFile_LG = INCLPRE + spInput.upper() + INCLPOST_LG
-    try:
+    # 10.2 Extract NIR file names from LOW-G "keepers" file
+    inclFile_LG = ''
+    for fl in fileslist:
+        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find('lg') != -1:
+            inclFile_LG = fl
+            break
+    if inclFile_LG != '':
         dataIncl_LG = ascii.read(FOLDER_IN + inclFile_LG, format='no_header', \
                                  delimiter=DELL_CHAR, comment=COMM_CHAR)
-    except:
-        dataIncl_LG = []
     if len(dataIncl_LG) > 0:
         includeObjs_LG = np.array(dataIncl_LG['col1']).astype(object)
         includeObjs_LG = includeObjs_LG + np.repeat('.fits', len(dataIncl_LG))
@@ -947,7 +955,37 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
                 tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
                 toInclude_LG[tmpInclIdx] = True
     
-    # 10.2 Determine which target is the NIR Standard object
+    # 10.3 Extract NIR file names from "rejects" file
+    exclFile = ''
+    for fl in fileslist:
+        if fl.find(spInput) != -1 and fl.find('rejects') != -1:
+            if grav == 'F' and fl.find('lg') == -1:
+                exclFile = fl
+                break
+            elif grav == 'LG' and fl.find('lg') != -1:
+                exclFile = fl
+                break
+    if exclFile != '':
+        try:
+            dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', \
+                                  delimiter=DELL_CHAR, comment=COMM_CHAR)
+        except:
+            dataExcl = []
+    if len(dataExcl) == 0 and excluded:
+        print 'No objects found in REJECTS file. Nothing to plot.'
+        return
+    elif len(dataExcl) > 0:
+        excludeObjs = np.array(dataExcl['col1']).astype(object)
+        excludeObjs = excludeObjs + np.repeat('.fits', len(dataExcl))
+        # Find intersection of exclude-obj list and filtered targets list
+        setExclude = set(excludeObjs).intersection(set(NIRfilenames))
+        # Create list with intersection targets
+        if len(setExclude) != 0:
+            for exclIdx in setExclude:
+                tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
+                toExclude[tmpExclIdx] = True
+    
+    # 10.4 Determine which target is the NIR Standard object
     O_standard = [None] * 3 # Holds standard for output
     stdObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
@@ -963,33 +1001,35 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
                 O_standard[1] = spectra['H'][idx]
                 O_standard[2] = spectra['K'][idx]
     
-    # 10.3 Determine which targets to include in plots (based on user input)
+    # 10.5 Determine which targets to include in plots (based on user input)
     # Consolidate plotting & template-flux instructions
-    plotInstructions  = ['exclude'] * len(refs)
+    plotInstructions  = ['no'] * len(refs)
     templInstructions = [False] * len(refs)
-    if grav == 'LG': # If plot request is Low gravity
+    if grav == 'LG':
         for plotIdx in range(len(refs)):
             if toInclude_LG[plotIdx]:
                 plotInstructions[plotIdx] = 'low'
                 templInstructions[plotIdx] = True
-    
-    elif grav == 'F': # If plot request is Field, include Field & Standard targets
+            if toExclude[plotIdx] and excluded:
+                plotInstructions[plotIdx] = 'excluded'
+    elif grav == 'F':
         for plotIdx in range(len(plotInstructions)):
             if toInclude[plotIdx]:
                 plotInstructions[plotIdx] = 'field'
                 templInstructions[plotIdx] = True
-            elif stdObjs[plotIdx]:
-                plotInstructions[plotIdx] = 'standard'
-                templInstructions[plotIdx] = True
-
+            if toExclude[plotIdx] and excluded:
+                plotInstructions[plotIdx] = 'excluded'
+            #elif stdObjs[plotIdx]:
+            #    plotInstructions[plotIdx] = 'standard'
+            #    templInstructions[plotIdx] = True
     else:
         print 'Wrong gravity input.'
         return
     
-    # If all plot instructions are "exclude", then stop procedure (for spectral types)
+    # If all plot instructions are "no", then stop procedure (for spectral types)
     allExcl = True
     for instr in plotInstructions:
-        if instr != 'exclude':
+        if instr != 'no':
             allExcl = False
     if allExcl:
         print 'No spectral data to plot based on your request.'
@@ -1071,19 +1111,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
             O_template = None
     
     
-    # 12. EXCLUDE FROM PLOTTING OBJECTS NOT USED IN TEMPLATE CALCULATION ----------------
-    for tIdx, tmpTempl in enumerate(templInstructions):
-        if not tmpTempl:
-            if special:
-                # Manually exclude U50171 (0835+1953, Davy's L5 NIR standard)
-                # Its NIR spectrum has no uncertainties, so it is not used in template
-                if refs[tIdx] == '50171':
-                    plotInstructions[tIdx] = 'exclude'
-            else:
-                plotInstructions[tIdx] = 'exclude'
-    
-    
-    # 13. PLOT DATA --------------------------------------------------------------------
+    # 12. PLOT DATA --------------------------------------------------------------------
     if plot:
         # Gather info on each target
         objInfo = [None] * len(refs)
@@ -1106,22 +1134,22 @@ def main(spInput, grav='', plot=True, templ=False, std=False, special=False, nor
             objInfo[posIdx] = (tmpDesig + ' ' + tmpSPtype + ' ' + '%.2f' %tmpJK)
         
         if objInfo[-1] is None:
-            objInfo[-1] = 'template'        
+            objInfo[-1] = 'template' 
         
         # Create Figure with Subplots and Annotations
         figObj = plotspec(spectraN, BANDS_NAMES, BAND_LIMS, objInfo, spTypeInput, \
-                             grav, plotInstructions, special)
+                          grav, plotInstructions, excluded)
     
     if plot:
-        if special:
-            sptxt = '_special'
+        if excluded:
+            sptxt = '_excluded'
         else:
             sptxt = ''
         figObj.savefig(FOLDER_OUT + spTypeInput + 'strip_' + \
                       grav.lower() + sptxt + '.pdf', dpi=300)
     
     
-    # 14. DETERMINE OUTPUT -------------------------------------------------------------
+    # 13. DETERMINE OUTPUT -------------------------------------------------------------
     if templ:
         if std:
             return O_template, O_standard
