@@ -16,6 +16,10 @@ CATEGLABELS = ['field gravity, in template', 'field gravity, excluded',
 LOCSBOXFIELDS = np.arange(1,18,2)
 LOCSBOXLOWG = np.arange(1.4,18,2)
 
+# Initialize txt file to store stats
+f = open(FOLDER_DATA + 'quartiles_stats.txt', 'w')
+f.write('#SpType gravity min 25-quartile mean 75-quartile max numOjbs \n')
+
 # Read data
 dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
 data = np.array(dataraw).T
@@ -65,13 +69,11 @@ for isptype,sptype in enumerate(SPTYPESN):
             else:
                 grav = 'low-g'
                 xloc = LOCSBOXLOWG[isptype]
+            
             bp = ax.boxplot([jks[icat[itoplot]]], positions=[xloc], whis=np.inf, widths=0.3)
             for box in bp['boxes']:
                 box.set(color=COLORS[icateg])
                 box.set(linewidth=0.7)
-                print SPTYPES[isptype] + ' ' + grav + ' 25-percentile: ' + str(box.get_ydata()[0])
-                print SPTYPES[isptype] + ' ' + grav + ' 75-percentile: ' + str(box.get_ydata()[2])
-                print ' '
             for whisker in bp['whiskers']:
                 whisker.set(color=COLORS[icateg])
                 whisker.set(linestyle='-')
@@ -84,8 +86,8 @@ for isptype,sptype in enumerate(SPTYPESN):
             
             # Plot averages as scatter points
             avgjk = np.average(jks[icat[itoplot]])
-            ax.scatter(xloc, avgjk, marker='o', edgecolor='none', facecolor=COLORS[icateg], s=15, \
-                       zorder=10)
+            ax.scatter(xloc, avgjk, marker='o', edgecolor='none', facecolor=COLORS[icateg], \
+                       s=15, zorder=10)
             
             # Annotate number of objects in box
             numjk = len(jks[icat[itoplot]])
@@ -94,6 +96,16 @@ for isptype,sptype in enumerate(SPTYPESN):
             else:
                 yloc = jkmax + 0.02
             ax.text(xloc-0.05 , yloc, str(numjk), color=COLORS[icateg], fontsize=9, ha='center')
+            
+            # Consolidate data to print in txt file
+            tmptextline = SPTYPES[isptype] + ' ' + grav + ' ' \
+                               + str(np.round(bp['caps'][1].get_ydata()[0],3)) + ' ' \
+                               + str(np.round(bp['boxes'][0].get_ydata()[0],3)) + ' ' \
+                               + str(np.round(avgjk,3)) + ' ' \
+                               + str(np.round(bp['boxes'][0].get_ydata()[2],3)) + ' ' \
+                               + str(np.round(bp['caps'][0].get_ydata()[0],3)) + ' ' \
+                               + str(numjk) + '\n'
+            f.write(tmptextline)
         
         # Plot excluded as scatter points
         elif categ in [4,6]:
@@ -152,3 +164,4 @@ ax.text(6.1, 2.2255, 'low g.', color=ORANGE, fontsize=11)
 ax.text(7.6, 2.2255, ')', fontsize=11)
 
 fig.savefig(FOLDER_OUT_PLT + 'JK.pdf', dpi=300)
+f.close()
