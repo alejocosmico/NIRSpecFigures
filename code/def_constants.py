@@ -26,7 +26,7 @@ GREEN = '#006633'
 L_GREEN = '#66CC00'
 ORANGE = '#FF9933'
 RED = '#FF0000'
-L_RED = '#CC6666'
+L_RED = '#FF6666'
 
 COLOR_SET = np.array(['#CC3333','#FF0000','#CC0000','#990000','#CC3300', \
                       '#FF3333','#FF6666','#FF3399','#CC0099','#FF0066', \
