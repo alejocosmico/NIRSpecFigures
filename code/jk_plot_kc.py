@@ -18,7 +18,7 @@ LOCSBOXLOWG = np.arange(1.4,18,2)
 
 # Initialize txt file to store stats
 f = open(FOLDER_DATA + 'quartiles_stats.txt', 'w')
-f.write('#SpType gravity min 25-quartile mean 75-quartile max numOjbs \n')
+f.write('#SpType gravity min 25-quartile median 75-quartile max mean numOjbs \n')
 
 # Read data
 dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
@@ -101,9 +101,10 @@ for isptype,sptype in enumerate(SPTYPESN):
             tmptextline = SPTYPES[isptype] + ' ' + grav + ' ' \
                                + str(np.round(bp['caps'][1].get_ydata()[0],3)) + ' ' \
                                + str(np.round(bp['boxes'][0].get_ydata()[0],3)) + ' ' \
-                               + str(np.round(avgjk,3)) + ' ' \
+                               + str(np.round(bp['medians'][0].get_ydata()[0],3)) + ' ' \
                                + str(np.round(bp['boxes'][0].get_ydata()[2],3)) + ' ' \
                                + str(np.round(bp['caps'][0].get_ydata()[0],3)) + ' ' \
+                               + str(np.round(avgjk,3)) + ' ' \
                                + str(numjk) + '\n'
             f.write(tmptextline)
         
@@ -146,7 +147,7 @@ ax.set_axisbelow(True)
 # Add legend
 ax.plot([100,100], color=BLACK, label='field gravity quartiles')
 ax.plot([100,100], color=RED, label='low gravity quartiles')
-ax.scatter(100,100, marker='o', edgecolor='none', facecolor=RED, label='average')
+ax.scatter(100,100, marker='o', edgecolor='none', facecolor=RED, label='mean')
 ax.scatter(100,100, marker='x', color=ORANGE, label='excluded (')
 lgd = ax.legend(loc='upper left', handlelength=0.5, numpoints=1, scatterpoints=1, \
                 labelspacing=0.2, handletextpad=0.2, bbox_to_anchor=(0.0,1))
