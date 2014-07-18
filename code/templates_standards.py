@@ -2,8 +2,8 @@
 Plots the NIR Kirkpatrick L standards against the NIR L templates calculated using nir_opt_comp_strip.
 '''
 def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
-# Plots set of spectral data and saves plots in a PDF file.
-# specData and limits must be dictionaries.
+    # Plots set of spectral data and saves plots in a PDF file.
+    # specData and limits must be dictionaries.
     
     #import numpy as np
     #import matplotlib.pyplot as plt
