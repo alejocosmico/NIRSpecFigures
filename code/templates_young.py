@@ -31,7 +31,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
     # 3) Initialize Figure ====================================================
     plt.close()
     plt.rc('font', size=9)
-    fig = plt.figure(1, figsize=(7.33,8.6))
+    fig = plt.figure(1, figsize=(7.33,7.1))
     plt.clf()
     
     # 4) Generate Subplots ====================================================
@@ -51,7 +51,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
         # 4.3) Initialize Subplot ---------------------------------------------
         tmpLeft = 0.06 + (2 - bandIdx) * 0.32
         subPlot = plt.figure(1).add_subplot(1,3,3 - bandIdx, \
-                            position=[tmpLeft,0.05,0.265,0.92])
+                            position=[tmpLeft,0.07,0.265,0.91])
                                    # [left,bottom,width,height]
         subPlot.set_autoscale_on(False)
         
@@ -111,7 +111,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
                 if similar:
                     lnWidth = 1.6
                 else:
-                    lnWidth = 0.7
+                    lnWidth = 1.2
             if specIdx > 0 and specIdx % 2 == 0:
                 if bandIdx == 0:
                     offset = offset + 0.55
@@ -147,29 +147,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
                                  ((wls[wlIdx + 1] - wl) / 2)
                     rect_height = maxs[wlIdx] - mins[wlIdx]
                     
-                    # Set color fill of rectangle
-                    err = errs[wlIdx]
-                    if err > 0.19:
-                        grayIdx = 9
-                    elif err > 0.17:
-                        grayIdx = 8
-                    elif err > 0.16:
-                        grayIdx = 7
-                    elif err > 0.15:
-                        grayIdx = 6
-                    elif err > 0.13:
-                        grayIdx = 5
-                    elif err > 0.11:
-                        grayIdx = 4
-                    elif err > 0.09:
-                        grayIdx = 3
-                    elif err > 0.07:
-                        grayIdx = 2
-                    elif err > 0.06:
-                        grayIdx = 1
-                    else:
-                        grayIdx = 0
-                    rect_color = GRAYS[grayIdx]
+                    rect_color = GRAYS[6]
                     
                     # Add rectangle to plot
                     rect_patch = mpatches.Rectangle(xy=(rect_x, rect_y), width=rect_width, \
@@ -201,8 +179,8 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
                 if currMax > tailMax:
                     tailMax = currMax
             
-            # Add annotation to template plot
-            if specIdx % 2 == 0:
+            # Add annotation to template plot (skip H band)
+            if bandIdx != 1 and specIdx % 2 == 0:
                 textLoc = (0, 15)
                 annotLoc = (wls[-10], tailMax + offset)
                 annotTxt = objLabel
@@ -258,7 +236,8 @@ execfile('def_constants.py')
 DELL_CHAR = '\t' # Delimiter character
 YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5']
 # Color order goes from reds to blues
-COLORS = ['#FF0000','#FF6699','#FFCC33','#009933','#33CCFF','#0066FF']
+colors = colorSet[6]
+#COLORS = ['#FF0000','#FF6699','#FFCC33','#009933','#33CCFF','#0066FF']
 
 # 3. LOOP THROUGH YOUNG NIR TEMPLATES -----------------------------------------
 for ysptp in YOUNG_SPTYPES:
@@ -281,7 +260,15 @@ for ysptp in YOUNG_SPTYPES:
     for band in BANDS:
         spectra[band] = []
     
-    for idxTp, spTp in enumerate(SPTYPES):
+    # Choose which field templates to compare with
+    if ysptp == 'L0' or ysptp == 'L1' or ysptp == 'L2':
+        tmpsptypes = ['L0','L1','L2','L3','L4']
+    elif ysptp == 'L3' or ysptp == 'L4':
+        tmpsptypes = ['L1','L2','L3','L4','L5']
+    elif ysptp == 'L5':
+        tmpsptypes = ['L2','L3','L4','L5','L6','L7']
+
+    for idxTp, spTp in enumerate(tmpsptypes):
         # Attach copy of young template
         for bdIdx, band in enumerate(BANDS):
             spectra[band].append(youngTempl[band][0])
@@ -296,7 +283,7 @@ for ysptp in YOUNG_SPTYPES:
         
         # Append plot label list
         spTypes.append(ysptp)
-        spTypes.append(SPTYPES[idxTp])
+        spTypes.append(tmpsptypes[idxTp])
     
     spTypes.reverse()
     for band in BANDS:
@@ -304,7 +291,7 @@ for ysptp in YOUNG_SPTYPES:
     
     # 3.4 Plot all templates
     plotInstructions = ['field','young'] * len(spTypes)
-    pltColor = COLORS.pop()
+    pltColor = colors.pop()
     bndNames = list(BANDS)
     figure = plotspec(spectra, bndNames, BAND_LIMS, spTypes, plotInstructions, ysptp, pltColor)
     

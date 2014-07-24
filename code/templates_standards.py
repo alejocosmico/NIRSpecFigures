@@ -87,7 +87,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
                 lnWidth = 0.8
             elif plotType == 'standard':
                 plotColor = copyColors.pop()
-                lnWidth = 0.5
+                lnWidth = 1.0
             if specIdx > 0 and specIdx % 2 == 0:
                 if bandIdx == 0:
                     offset = offset + 0.55
@@ -123,29 +123,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
                                  ((wls[wlIdx + 1] - wl) / 2)
                     rect_height = maxs[wlIdx] - mins[wlIdx]
                     
-                    # Set color fill of rectangle
-                    err = errs[wlIdx]
-                    if err > 0.19:
-                        grayIdx = 9
-                    elif err > 0.17:
-                        grayIdx = 8
-                    elif err > 0.16:
-                        grayIdx = 7
-                    elif err > 0.15:
-                        grayIdx = 6
-                    elif err > 0.13:
-                        grayIdx = 5
-                    elif err > 0.11:
-                        grayIdx = 4
-                    elif err > 0.09:
-                        grayIdx = 3
-                    elif err > 0.07:
-                        grayIdx = 2
-                    elif err > 0.06:
-                        grayIdx = 1
-                    else:
-                        grayIdx = 0
-                    rect_color = GRAYS[grayIdx]
+                    rect_color = GRAYS[6]
                     
                     # Add rectangle to plot
                     rect_patch = mpatches.Rectangle(xy=(rect_x, rect_y), width=rect_width, \

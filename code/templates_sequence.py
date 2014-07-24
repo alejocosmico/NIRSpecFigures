@@ -10,6 +10,7 @@ import pdb
 # Initialize variables --------------------------------------------------------
 execfile('def_constants.py')
 
+SKIPL1 = True
 DELL_CHAR = '\t' # Delimiter character
 COMM_CHAR = '#'  # Comment character
 
@@ -19,9 +20,14 @@ grav = raw_input('Enter gravity (f or lg): ').lower()
 if grav == 'f':
     DIVISIONS = [0,5,9] # EDIT THIS ARRAY TO BREAK DOWN FIELD SEQUENCE
     TITLE = 'Field gravity'
+    plotColors = colorSet[9]
 elif grav == 'lg':
     DIVISIONS = [0,3,6] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = 'Low gravity'
+    if SKIPL1:
+        plotColors = colorSet[5]
+    else:
+        plotColors = colorSet[6]
 
 # Arrays to hold template data
 labels = []
@@ -31,6 +37,8 @@ for band in BANDS:
 
 # Read template files ---------------------------------------------------------
 for isp, spType in enumerate(SPTYPES):
+    if grav == 'lg' and (SKIPL1 and spType == 'L1'):
+        continue
     for band in BANDS:
         filename = spType + band + '_' + grav + '.txt'
         try:
@@ -44,6 +52,7 @@ for isp, spType in enumerate(SPTYPES):
                 labels.append(spType)
 
 # Plot templates --------------------------------------------------------------
+plotColorsPop = list(plotColors)
 for idiv in range(len(DIVISIONS) - 1):
     plt.close()
     plt.rc('font', size=10)
@@ -52,7 +61,11 @@ for idiv in range(len(DIVISIONS) - 1):
     
     # Choose colors (colorSet defined in def_constants.py)
     numtempls = DIVISIONS[idiv+1] - DIVISIONS[idiv]
-    plotColors = colorSet[numtempls][::-1]
+    if grav== 'lg' and (SKIPL1 and idiv == 0):
+        numtempls = numtempls - 1
+    tmpplotColors = []
+    for ipop in range(0,numtempls):
+        tmpplotColors.append(plotColorsPop.pop())
     
     for iband, band in enumerate(BANDS):
         ax = fig.add_axes([0.05 + (iband * 0.32), 0.1, 0.28, 0.83]) # [left, bottom, width, height]
@@ -61,14 +74,16 @@ for idiv in range(len(DIVISIONS) - 1):
         icolor = 0
         for itempl,templ in enumerate(data[band]):
             # Manually skip low-g L1 (template not that solid)
-            if grav == 'lg' and labels[itempl] == 'L1':
-                continue
+            #if grav == 'lg' and labels[itempl] == 'L1':
+            #    continue
             
             if labels[itempl] >= ('L' + str(DIVISIONS[idiv])) \
                         and labels[itempl] < ('L' + str(DIVISIONS[idiv+1])):
                 xs = templ['col1']
                 ys = templ['col2']
-                ax.plot(xs, ys, color=plotColors[icolor], label=labels[itempl])
+                ax.plot(xs, ys, color=tmpplotColors[icolor], label=labels[itempl], \
+                        linewidth=1.3)
+                #ax.plot(xs, ys, color=plotColors[icolor], label=labels[itempl])
                 icolor = icolor + 1
         
         # Add labels and legend
@@ -83,7 +98,7 @@ for idiv in range(len(DIVISIONS) - 1):
                             bbox_to_anchor=(0,0.88), labelspacing=0.3, numpoints=1)
             lgd.draw_frame(False)
             for ilgdtxt,lgdtxt in enumerate(lgd.get_texts()):
-                plt.setp(lgdtxt, color=plotColors[ilgdtxt])
+                plt.setp(lgdtxt, color=tmpplotColors[ilgdtxt])
         
         # Clean up axes
         ax.spines['left'].set_color('none')
