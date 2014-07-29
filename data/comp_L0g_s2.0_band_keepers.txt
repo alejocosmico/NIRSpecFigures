@@ -1,0 +1,11 @@
+# 8 L0g dwarfs used for template construction because
+# reduced chi2 < 2.00000 in all bands (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+spex_prism_1711+2326_080713 	0.772665	0.414018	0.772665       2
+spex_prism_0032-4405_U20026 	1.74514	1.06743	1.74514       2
+U20098 	0.917333	1.74481	0.917333       2
+j2213-2136prismtc1 	0.575510	0.648902	0.575510       2
+spex_prism_0323-4631_U20157 	1.70386	1.93233	1.70386       2
+spex_prism_0141-4633_040905 	0.317771	0.356959	0.317771       2
+spex_prism_U10141_060821 	0.476624	0.439569	0.476624       2
+spex_prism_2315+0617_U20993 	0.720841	0.615553	0.720841       2

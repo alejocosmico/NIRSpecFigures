@@ -1,0 +1,5 @@
+# 2 L1b dwarfs used for template construction because
+# reduced chi2 < 2.00000 in all bands (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+u20373_050323 	0.905310	0.608416	0.905310       2
+U20114_0227-1624 	0.265183	0.476510	0.265183       2
