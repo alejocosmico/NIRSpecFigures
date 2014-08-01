@@ -14,7 +14,7 @@ SKIPL1 = True
 DELL_CHAR = '\t' # Delimiter character
 COMM_CHAR = '#'  # Comment character
 
-grav = raw_input('Enter gravity (f or lg): ').lower()
+grav = raw_input('Enter gravity (f, lg, g, b): ').lower()
 
 # Break down template sequence for plotting
 if grav == 'f':
@@ -22,8 +22,22 @@ if grav == 'f':
     TITLE = 'Field gravity'
     plotColors = colorSet[9]
 elif grav == 'lg':
-    DIVISIONS = [0,3,6] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
-    TITLE = 'Low gravity'
+    DIVISIONS = [0,5] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE [0,3,6]
+    TITLE = r'ow gravity'
+    if SKIPL1:
+        plotColors = colorSet[5]
+    else:
+        plotColors = colorSet[6]
+elif grav == 'g':
+    DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
+    TITLE = r'$\gamma$ gravity'
+    if SKIPL1:
+        plotColors = colorSet[5]
+    else:
+        plotColors = colorSet[6]
+elif grav == 'b':
+    DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
+    TITLE = r'$\beta$ gravity'
     if SKIPL1:
         plotColors = colorSet[5]
     else:

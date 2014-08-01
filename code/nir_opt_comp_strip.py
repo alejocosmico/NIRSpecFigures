@@ -11,8 +11,8 @@ NEEDED: 1) FILE_IN: ASCII tab-delimited txt file with data for each object
         4) FOLDER_IN: Folder containing (1)-(3) above
         5) FOLDER_OUT: Folder to store output.
 
-INPUT:  1) spInput: Spectral type to select (e.g. L0).
-        2) grav:   Low: lg, Field: f.
+INPUT:  1) spInput: String, spectral type to select (e.g. L0).
+        2) grav:   string, Low: lg, Field: f, Gamma: g, Beta: b.
         3) plot: Boolean, whether to plot result
         4) templ: Boolean, whether to get the average template spectrum
         5) std: Boolean, whether to get the spectral type NIR standard spectrum
@@ -458,10 +458,14 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         # ax2 = subPlot.axes.twiny()
         
         # Set figure and axes labels
-        if grav == 'LG':
+        if grav == 'lg':
             plotType = 'low'
-        elif grav == 'F':
+        elif grav == 'f':
             plotType = 'field'
+        elif grav == 'g':
+            plotType = r'$\gamma$'
+        elif grav == 'b':
+            plotType = r'$\beta$'
         else:
             plotType = ''
         
@@ -907,23 +911,24 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     
     
     # 10. CHARACTERIZE TARGETS (i.e. identify young, field, and excluded) ---------------
-    grav = grav.upper()
+    grav = grav.lower()
     toInclude = [False] * len(refs)
-    toInclude_LG = [False] * len(refs)
+#    toInclude_LG = [False] * len(refs)
     toExclude = [False] * len(refs)
     dataIncl = []
-    dataIncl_LG = []
+#    dataIncl_LG = []
     dataExcl = []
     
-    # 10.1 Extract NIR file names from FIELD "keepers" file
+    # 10.1 Extract NIR file names from "keepers" file
     fileslist = os.listdir(FOLDER_IN)
     inclFile = ''
     for fl in fileslist:
-        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find('lg') == -1:
+        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find(grav) == 7:
             inclFile = fl
             break
-    dataIncl = ascii.read(FOLDER_IN + inclFile, format='no_header', delimiter=DELL_CHAR, \
-                              comment=COMM_CHAR)
+    if inclFile != '':
+        dataIncl = ascii.read(FOLDER_IN + inclFile, format='no_header', \
+                              delimiter=DELL_CHAR, comment=COMM_CHAR)
     if len(dataIncl) > 0:
         includeObjs = np.array(dataIncl['col1']).astype(object)
         includeObjs = includeObjs + np.repeat('.fits', len(dataIncl))
@@ -935,34 +940,10 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                 tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
                 toInclude[tmpInclIdx] = True
     
-    # 10.2 Extract NIR file names from LOW-G "keepers" file
-    inclFile_LG = ''
-    for fl in fileslist:
-        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find('lg') != -1:
-            inclFile_LG = fl
-            break
-    if inclFile_LG != '':
-        dataIncl_LG = ascii.read(FOLDER_IN + inclFile_LG, format='no_header', \
-                                 delimiter=DELL_CHAR, comment=COMM_CHAR)
-    if len(dataIncl_LG) > 0:
-        includeObjs_LG = np.array(dataIncl_LG['col1']).astype(object)
-        includeObjs_LG = includeObjs_LG + np.repeat('.fits', len(dataIncl_LG))
-        # Find intersection of include-obj list and filtered targets list
-        setInclude_LG = set(includeObjs_LG).intersection(set(NIRfilenames))
-        # Create list with intersection targets
-        if len(setInclude_LG) != 0:
-            for inclIdx in setInclude_LG:
-                tmpInclIdx = np.where(np.array(NIRfilenames) == inclIdx)[0]
-                toInclude_LG[tmpInclIdx] = True
-    
-    # 10.3 Extract NIR file names from "rejects" file
+    # 10.2 Extract NIR file names from "rejects" file
     exclFile = ''
     for fl in fileslist:
-        if fl.find(spInput) != -1 and fl.find('rejects') != -1:
-            if grav == 'F' and fl.find('lg') == -1:
-                exclFile = fl
-                break
-            elif grav == 'LG' and fl.find('lg') != -1:
+        if fl.find(spInput) != -1 and fl.find('rejects') != -1 and fl.find(grav) == 7:
                 exclFile = fl
                 break
     if exclFile != '':
@@ -985,7 +966,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                 tmpExclIdx = np.where(np.array(NIRfilenames) == exclIdx)[0]
                 toExclude[tmpExclIdx] = True
     
-    # 10.4 Determine which target is the NIR Standard object
+    # 10.3 Determine which target is the NIR Standard object
     O_standard = [None] * 3 # Holds standard for output
     stdObjs = [False] * len(refs)
     for idx,spIdx in enumerate(specIdx[specSortIdx]):
@@ -1001,30 +982,27 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                 O_standard[1] = spectra['H'][idx]
                 O_standard[2] = spectra['K'][idx]
     
-    # 10.5 Determine which targets to include in plots (based on user input)
+    # 10.4 Determine which targets to include in plots (based on user input)
     # Consolidate plotting & template-flux instructions
     plotInstructions  = ['no'] * len(refs)
     templInstructions = [False] * len(refs)
-    if grav == 'LG':
-        for plotIdx in range(len(refs)):
-            if toInclude_LG[plotIdx]:
-                plotInstructions[plotIdx] = 'low'
-                templInstructions[plotIdx] = True
-            if toExclude[plotIdx] and excluded:
-                plotInstructions[plotIdx] = 'excluded'
-    elif grav == 'F':
-        for plotIdx in range(len(plotInstructions)):
-            if toInclude[plotIdx]:
-                plotInstructions[plotIdx] = 'field'
-                templInstructions[plotIdx] = True
-            if toExclude[plotIdx] and excluded:
-                plotInstructions[plotIdx] = 'excluded'
-            #elif stdObjs[plotIdx]:
-            #    plotInstructions[plotIdx] = 'standard'
-            #    templInstructions[plotIdx] = True
+    if grav == 'f':
+        plotinstlbl = 'field'
+    elif grav == 'lg':
+        plotinstlbl = 'low'
+    elif grav == 'g':
+        plotinstlbl = 'gamma'
+    elif grav == 'b':
+        plotinstlbl = 'beta'
     else:
         print 'Wrong gravity input.'
         return
+    for plotIdx in range(len(refs)):
+        if toInclude[plotIdx]:
+            plotInstructions[plotIdx] = plotinstlbl
+            templInstructions[plotIdx] = True
+        if toExclude[plotIdx] and excluded:
+            plotInstructions[plotIdx] = 'excluded'
     
     # If all plot instructions are "no", then stop procedure (for spectral types)
     allExcl = True
@@ -1146,7 +1124,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         else:
             sptxt = ''
         figObj.savefig(FOLDER_OUT + spTypeInput + 'strip_' + \
-                      grav.lower() + sptxt + '.pdf', dpi=300)
+                       grav + sptxt + '.pdf', dpi=300)
     
     
     # 13. DETERMINE OUTPUT -------------------------------------------------------------
