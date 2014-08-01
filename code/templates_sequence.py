@@ -31,17 +31,11 @@ elif grav == 'lg':
 elif grav == 'g':
     DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = r'$\gamma$ gravity'
-    if SKIPL1:
-        plotColors = colorSet[5]
-    else:
-        plotColors = colorSet[6]
+    plotColors = colorSet[2]
 elif grav == 'b':
     DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = r'$\beta$ gravity'
-    if SKIPL1:
-        plotColors = colorSet[5]
-    else:
-        plotColors = colorSet[6]
+    plotColors = colorSet[2]
 
 # Arrays to hold template data
 labels = []
