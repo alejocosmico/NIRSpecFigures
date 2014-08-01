@@ -1,0 +1,7 @@
+# 4 L7 dwarfs used for template construction because
+# reduced chi2 < 1.40000 in all bands (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+spex_prism_1728+3948_060821 	0.953381	1.09901	0.953381       2
+U10176 	0.915292	1.28931	0.915292       2
+u10721_050323 	0.585530	0.293029	0.585530       2
+U20925 	0.773056	0.640333	0.773056       2
