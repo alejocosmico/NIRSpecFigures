@@ -1,4 +1,6 @@
-# 1 L4lg dwarfs rejected from template construction because 
+# 3 L4lg dwarfs rejected from template construction because 
 # reduced chi2 > 2.00000 in any band (but not full spectrum)
 # Name	J chi2	H chi2	K chi2
-U12096 	7.78217	9.55298	18.0827
+U20179 	2.11466	9.14379	10.7426
+U12096 	5.42069	3.79855	11.0912
+U20171_0355+1133 	8.46195	2.77903	2.96229
