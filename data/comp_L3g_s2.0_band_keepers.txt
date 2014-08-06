@@ -1,0 +1,6 @@
+# 3 L3g dwarfs used for template construction because
+# reduced chi2 < 2.00000 in all bands (but not full spectrum)
+# Name	J chi2	H chi2	K chi2
+spex_prism_2208+2921_U40004 	0.763924	0.765820	0.763924       2
+spex_prism_1726+1538_080713 	0.329835	0.512611	0.329835       2
+spex_prism_U20636_1551+0941_080713 	0.972471	0.814804	0.972471       2
