@@ -4,7 +4,7 @@ import nir_opt_comp_strip as nocs
 import astrotools as at
 execfile('def_constants.py')
 
-GRAVS = ['f','lg','g','b']
+GRAVS = ['f','g','b']
 
 for sptp in SPTYPES:
     print sptp

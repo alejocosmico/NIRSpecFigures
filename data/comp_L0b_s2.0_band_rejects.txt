@@ -1,3 +1,4 @@
-# 0 L0b dwarfs rejected from template construction because 
+# 1 L0b dwarfs rejected from template construction because 
 # reduced chi2 > 2.00000 in any band (but not full spectrum)
 # Name	J chi2	H chi2	K chi2
+U40021_Roque25_dagny 	184.182	617.201	69.3695
