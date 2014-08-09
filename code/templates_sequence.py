@@ -23,15 +23,15 @@ if grav == 'f':
     plotColors = colorSet[9]
 elif grav == 'lg':
     DIVISIONS = [0,5] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE [0,3,6]
-    TITLE = r'ow gravity'
+    TITLE = r'low gravity'
     if SKIPL1:
         plotColors = colorSet[5]
     else:
         plotColors = colorSet[6]
 elif grav == 'g':
-    DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
+    DIVISIONS = [0,5] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = r'$\gamma$ gravity'
-    plotColors = colorSet[2]
+    plotColors = colorSet[5]
 elif grav == 'b':
     DIVISIONS = [0,2] # EDIT THIS ARRAY TO BREAK DOWN LOW-G SEQUENCE
     TITLE = r'$\beta$ gravity'

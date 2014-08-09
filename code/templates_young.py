@@ -242,12 +242,15 @@ execfile('def_constants.py')
 DELL_CHAR = '\t' # Delimiter character
 grav = raw_input('Enter young gravity (lg, g, b): ').lower()
 if grav == 'lg':
-    YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4']
+    YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5']
     # Color order goes from reds to blues
     colors = colorSet[6]
-elif grav == 'g' or grav == 'b':
+elif grav == 'b':
     YOUNG_SPTYPES = ['L0', 'L1']
     colors = colorSet[2]
+elif grav == 'g':
+    YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5']
+    colors = colorSet[6]
 #COLORS = ['#FF0000','#FF6699','#FFCC33','#009933','#33CCFF','#0066FF']
 
 # 3. LOOP THROUGH YOUNG NIR TEMPLATES -----------------------------------------
