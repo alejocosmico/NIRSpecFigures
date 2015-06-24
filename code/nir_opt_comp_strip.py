@@ -314,7 +314,7 @@ def addannot(specData, subPlot, bandName, classType):
             loc3center = (annotation[1][0] + annotation[1][1]) / 2
             loc3       = np.where(specData[xtremeObj][0] <= loc3center)
             annotLoc3  = (specData[xtremeObj][0][loc3[0][-1]], annotLoc1[1])
-            txtLoc     = (0,offText)
+            txtLoc     = (0,offText*1.01)
             
             # Add third annotation
             subPlot.annotate(annotation[0], xy=annotLoc3, xycoords='data', \
