@@ -26,13 +26,14 @@ OUTPUT: 1) template (if templ=True) and NIR standard (if std=True)
 '''
 
 def addannot(specData, subPlot, bandName, classType):
-# Adds annotations to indicate spectral absorption lines
+    # Adds annotations to indicate spectral absorption lines
     
     import numpy as np
     from scipy.stats import nanmean
+    import pdb
     
     # 1) Initialize strings
-    TXT_SIZE = 9
+    TXT_SIZE = 6
     H2O   = 'H' + '$\sf_2$' + 'O'
     COH2O = 'CO+' + H2O
     H2OH2 = H2O + ' + H' + '$\sf_2$' + ' CIA'
@@ -41,14 +42,10 @@ def addannot(specData, subPlot, bandName, classType):
     # 2) Define the spectral lines to annotate
     if bandName == 'OPT':
         # Location exceptions of some annotations for some spectral types
-        if classType == 'L0' or classType == 'L1' or classType == 'L8':
-            offRb = 45
-        else:
-            offRb = 65
         if classType >= 'L5':
             offK = 25
         else:
-            offK = 65
+            offK = 55
         
         ANNOT = [None] * 10
         # [Name, wavelength, offset of annotation from plot, type]
@@ -56,11 +53,11 @@ def addannot(specData, subPlot, bandName, classType):
         #         For Band, if < 1 then annotation below line
         ANNOT[0]  = ['VO',   (0.7300,0.7550),    0, 'Band']
         ANNOT[1]  = ['K I',  (0.7665,0.7699), offK, 'Doublet']
-        ANNOT[2]  = ['Rb I', (0.7800,0.7948),   60, 'Doublet']
+        ANNOT[2]  = ['Rb I', (0.7800,0.7948),   50, 'Doublet']
         ANNOT[3]  = ['VO',   (0.7850,0.8000),    0, 'Band']
-        ANNOT[4]  = ['Na I', (0.8176,0.8200),   45, 'Doublet']
+        ANNOT[4]  = ['Na I', (0.8176,0.8200),   20, 'Doublet']
         ANNOT[5]  = ['TiO',  (0.8410,0.8550),    0, 'Band']
-        ANNOT[6]  = ['Cs I',  0.8521,          -25, 'Line']
+        ANNOT[6]  = ['Cs I',  0.8521,          -15, 'Line']
         ANNOT[7]  = ['CrH',  (0.8610,0.8780),    0, 'Band']
         ANNOT[8]  = ['FeH',  (0.8640,0.8744),    0, 'Band']
         ANNOT[9]  = ['Cs I',  0.8943,          -40, 'Line']
@@ -76,7 +73,7 @@ def addannot(specData, subPlot, bandName, classType):
         ANNOT[6]  = ['VO',  (1.160,1.200),   0, 'Band']
         ANNOT[7]  = ['FeH', (1.194,1.239),   0, 'Band']
         ANNOT[8]  = ['K I',  1.250,        -25, 'Line']
-        ANNOT[9]  = [r'Pa $\beta$', 1.280, -30, 'LineT']
+        ANNOT[9]  = [r'Pa $\beta$', 1.280, -20, 'LineT']
         ANNOT[10] = [H2O,   (1.310,1.390),   0, 'Band']
     
     elif bandName == 'H':
@@ -91,7 +88,7 @@ def addannot(specData, subPlot, bandName, classType):
         ANNOT[0] = [H2O,    (1.910,2.050),   0, 'Band']
         ANNOT[1] = [H2OH2,  (2.150,2.390),   0, 'Band']
         ANNOT[2] = [r'Br $\gamma$', 2.160, -25, 'LineT']
-        ANNOT[3] = ['Na I',  2.210,        -15, 'Line']
+        ANNOT[3] = ['Na I',  2.210,        -10, 'Line']
         ANNOT[4] = [COH2O,  (2.293,2.390),   0, 'Band']
     
     else:
@@ -170,7 +167,6 @@ def addannot(specData, subPlot, bandName, classType):
         # <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
         elif annotType == 'Band':  # Draw a horizontal line
         # For band absorption: Add horizontal line AND annotation with no connector
-            
             # Initialize variables
             objsFluxIdxs = [np.nan] * len(specData)
             objsFluxAvgs = [np.nan] * len(specData)
@@ -225,11 +221,11 @@ def addannot(specData, subPlot, bandName, classType):
                 y_range = ylims[1] - ylims[0] 
                 
                 if annotation[0] == H2O or annotation[0] == H2OH2:
-                    mult1 = 0.948
-                    mult2 = 0.01
+                    mult1 = 0.94
+                    mult2 = 0.012
                 elif annotation[0] == COH2O:
-                    mult1 = 0.900
-                    mult2 = 0.01
+                    mult1 = 0.88
+                    mult2 = 0.012
                 elif annotation[0] == 'TiO':
                     mult1 = 0.930
                     mult2 = 0.007
@@ -240,7 +236,7 @@ def addannot(specData, subPlot, bandName, classType):
                     mult1 = 0.640
                     mult2 = 0.007
                 elif annotation[0] == 'VO' and bandName == 'J':
-                    mult1 = 0.820
+                    mult1 = 0.89
                     mult2 = 0.007
                 elif annotation[0] == 'FeH':
                     mult1 = 0.080
@@ -290,34 +286,49 @@ def addannot(specData, subPlot, bandName, classType):
                 xtremeObj = np.array(objsFluxes).argmin()
             
             # Set the coordinate location of the first annotated point
-            loc1      = np.where(specData[xtremeObj][0] <= annotation[1][0])
-            annotLoc1 = (specData[xtremeObj][0][loc1[0][-1]], \
-                         specData[xtremeObj][1][loc1[0][-1]])
+            if bandName == 'OPT'and annotation[0] == 'K I':
+                annotLoc1 = (0.465, 0.04)
+                xycrds = 'axes fraction'
+            else:
+                loc1      = np.where(specData[xtremeObj][0] <= annotation[1][0])
+                annotLoc1 = (specData[xtremeObj][0][loc1[0][-1]], \
+                             specData[xtremeObj][1][loc1[0][-1]])
+                xycrds = 'data'
             txtLoc = (0, offText)
             
             # Add first annotation (with no text)
-            subPlot.annotate(' ', xy=annotLoc1, xycoords='data', xytext=txtLoc, \
+            subPlot.annotate(' ', xy=annotLoc1, xycoords=xycrds, xytext=txtLoc, \
                              textcoords='offset points', ha='center', \
                              arrowprops=annLineType)
             
             # Set the coordinate location of the second annotated point
-            loc2      = np.where(specData[xtremeObj][0] <= annotation[1][1])
-            annotLoc2 = (specData[xtremeObj][0][loc2[0][-1]], annotLoc1[1])
+            if bandName == 'OPT'and annotation[0] == 'K I':
+                annotLoc2 = (0.48, 0.04)
+                xycrds = 'axes fraction'
+            else:
+                loc2      = np.where(specData[xtremeObj][0] <= annotation[1][1])
+                annotLoc2 = (specData[xtremeObj][0][loc2[0][-1]], annotLoc1[1])
+                xyrcds = 'data'
             txtLoc = (0, offText)
             
             # Add second annotation (with no text)
-            subPlot.annotate(' ', xy=annotLoc2, xycoords='data', xytext=txtLoc, \
+            subPlot.annotate(' ', xy=annotLoc2, xycoords=xycrds, xytext=txtLoc, \
                              textcoords='offset points', ha='center', \
                              arrowprops=annLineType)
             
             # Set the coordinate location of the third annotated point
-            loc3center = (annotation[1][0] + annotation[1][1]) / 2
-            loc3       = np.where(specData[xtremeObj][0] <= loc3center)
-            annotLoc3  = (specData[xtremeObj][0][loc3[0][-1]], annotLoc1[1])
+            if bandName == 'OPT'and annotation[0] == 'K I':
+                annotLoc3 = (0.4725, 0.04)
+                xycrds = 'axes fraction'
+            else:
+                loc3center = (annotation[1][0] + annotation[1][1]) / 2
+                loc3       = np.where(specData[xtremeObj][0] <= loc3center)
+                annotLoc3  = (specData[xtremeObj][0][loc3[0][-1]], annotLoc1[1])
+                xyrcds = 'data'
             txtLoc     = (0,offText*1.01)
             
             # Add third annotation
-            subPlot.annotate(annotation[0], xy=annotLoc3, xycoords='data', \
+            subPlot.annotate(annotation[0], xy=annotLoc3, xycoords=xycrds, \
                              xytext=txtLoc, textcoords='offset points', \
                              fontsize=TXT_SIZE, fontname='Times New Roman', \
                              ha='center', arrowprops=annLineType2)
@@ -326,13 +337,14 @@ def addannot(specData, subPlot, bandName, classType):
 
 
 def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstructions=None, plotExcluded=False, figNum=1):
-# Plots set of spectral data and saves plots in a PDF file.
-# specData and limits must be dictionaries.
+    # Plots set of spectral data and saves plots in a PDF file.
+    # specData and limits must be dictionaries.
     
     import numpy as np
+    import matplotlib as mpl
     import matplotlib.pyplot as plt
     import scipy.stats as sps
-    
+    import cubehelix
     import types
     import pdb
     
@@ -342,7 +354,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         specData.keys()
         limits.keys()
     except AttributeError:
-        print 'PLOTSPEC: Data not received as dictionaries.'
+        print('PLOTSPEC: Data not received as dictionaries.')
         return
     
     # 2) Initialize variables & color sets (hex codes) ========================
@@ -395,15 +407,23 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
     colors[12] = COLOR_SET[[1,3,6,7,11,12,19,20,21,25,27,29]].tolist() 
     colors[11] = COLOR_SET[[1,3,6,11,12,19,20,21,25,27,29]].tolist()
     colors[10] = COLOR_SET[[1,6,11,12,19,20,21,25,27,29]].tolist()
-    colors[9]  = COLOR_SET[[1,6,11,12,19,20,25,27,29]].tolist()
+    #colors[9]  = COLOR_SET[[1,6,11,12,19,20,25,27,29]].tolist()
+    colors[9] = ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7', \
+                 '#92c5de','#4393c3','#2166ac','#053061']
     colors[8]  = COLOR_SET[[1,6,11,12,19,20,25,29]].tolist()
-    colors[7]  = COLOR_SET[[1,6,12,19,20,25,29]].tolist()
+    #colors[7]  = COLOR_SET[[1,6,12,19,20,25,29]].tolist()
+    colors[7] = ['#b2182b','#d6604d','#f4a582','#fddbc7','#92c5de', \
+                 '#4393c3','#2166ac']
     colors[6]  = COLOR_SET[[1,6,12,20,25,29]].tolist()
     colors[5]  = COLOR_SET[[1,6,12,20,29]].tolist()
-    colors[4]  = COLOR_SET[[1,12,20,29]].tolist()
-    colors[3]  = COLOR_SET[[1,20,29]].tolist()
-    colors[2]  = COLOR_SET[[1,29]].tolist()
-    colors[1]  = COLOR_SET[[29]].tolist()
+    #colors[4]  = COLOR_SET[[1,12,20,29]].tolist()
+    colors[4] = ['#ca0020','#f4a582','#92c5de','#0571b0']
+    #colors[3]  = COLOR_SET[[1,20,29]].tolist()
+    colors[3] = ['#ca0020','#f4a582','#0571b0']
+    #colors[2]  = COLOR_SET[[1,29]].tolist()
+    colors[2] = ['#ca0020','#0571b0']
+    #colors[1]  = COLOR_SET[[29]].tolist()
+    colors[1] = ['#2166ac']
     BLACK = '#000000'
     GRAY  = GRAYS[6] #'#CCCCCC'
     DGRAY = GRAYS[0] #'#666666'
@@ -414,8 +434,8 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
     
     # 3) Initialize Figure ====================================================
     plt.close()
-    plt.rc('font', size=10)
-    fig = plt.figure(figNum, figsize=(12,4.25))
+    plt.rc('font', size=7)
+    fig = plt.figure(figNum, figsize=(6.52,2.8))
     plt.clf()
     
     # 4) Generate Subplots ====================================================
@@ -436,12 +456,19 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         specNum = len(tmpSp[0])
         
         # Select color set based on count above
+        #cxmap = cubehelix.cmap(start=0., rot=-1.5, sat=1, gamma=0.8, nlev=specNum)
+        #cxmap = list(cxmap(i) for i in np.linspace(0,1,specNum))
+        #mpl.cm.coolwarm.set_gamma(1.5)
+        #cxmap = list(mpl.cm.coolwarm(np.linspace(0,1,specNum)))
+        #del cxmap[int((specNum+1)/2)]
+        #plt.rc('axes', color_cycle=cxmap)
+        #plotColors = cxmap
         if specNum > len(COLOR_SET):
-            plotColors = colors[len(COLOR_SET)][:]
+             plotColors = colors[len(COLOR_SET)][:]
         elif specNum == 0:
-            plotColors = None
+             plotColors = None
         else:
-            plotColors = colors[specNum][:]
+             plotColors = colors[specNum][:]
         
         # Legend is added when loop is for the J band
         if band == 'J':
@@ -449,13 +476,9 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         
         # 4c) Initialize Subplot ----------------------------------------------
         subPlot = plt.figure(figNum).add_subplot(1,4,4 - bandIdx, \
-                            position=[0.19 + (3 - bandIdx) * 0.205,0.1,0.18,0.83])
+                            position=[0.191 + (3 - bandIdx) * 0.205,0.09,0.181,0.87])
                                                        # [left,bottom,width,height]
         subPlot.set_autoscale_on(False)
-        
-        # Create dummy axes instance to be able to later manipulate upper axis
-        # *This does not work properly as of latest matplotlib version (1.2.0)*
-        # ax2 = subPlot.axes.twiny()
         
         # Set figure and axes labels
         if grav == 'lg':
@@ -473,21 +496,22 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         if plotType != '':
             title2 = plotType + ' gravity'
         if bandIdx == 2:
-            subPlot.set_xlabel(X_LABEL, position=(1.1,0.08))
+            subPlot.set_xlabel(X_LABEL, position=(1.1,0.08), labelpad=0)
         if bandIdx == 3:
-            subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.5))
+            subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.5), labelpad=-8)
             subPlot.set_title(title1, fontsize=13, fontweight='bold', \
-                              position=(0.01,0.92), ha='left')
-            subPlot.text(0.01,0.885, title2, fontsize=12, transform=subPlot.transAxes)
-            subPlot.text(0.01,0.835, 'templates', fontsize=12, transform=subPlot.transAxes)
+                              position=(0.01,0.885), ha='left')
+            subPlot.text(0.01,0.85, title2, fontsize=9, transform=subPlot.transAxes)
+            subPlot.text(0.01,0.8, 'templates', fontsize=9, \
+                         transform=subPlot.transAxes)
             if plotExcluded:
-                subPlot.text(0.01, 0.788, '& excluded', fontsize=11, \
+                subPlot.text(0.01, 0.75, '& excluded', fontsize=8, \
                              transform=subPlot.transAxes)
-                subPlot.text(0.01, 0.745, 'objects', fontsize=11, \
+                subPlot.text(0.01, 0.71, 'objects', fontsize=8, \
                              transform=subPlot.transAxes)
         
         # 4d) Determine order of spectra plotting -----------------------------
-        zOrders = [None] * len(plotInstructions)
+        zOrders = [0] * len(plotInstructions)
         countColor = specNum
         for plotIdx,plot in enumerate(plotInstructions):
             if plot == 'excluded':
@@ -521,8 +545,8 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
             if band != 'OPT':
                 templSigmaLow = templFlux - np.sqrt(templVar)
                 templSigmaUp = templFlux + np.sqrt(templVar)
-                subPlot.fill_between(templWls, templSigmaLow, templSigmaUp, facecolor=DGRAY, \
-                                     edgecolor='none', zorder=10)
+                subPlot.fill_between(templWls, templSigmaLow, templSigmaUp, \
+                                     facecolor=DGRAY, edgecolor='none', zorder=10)
         
         # 4h) Plot spectral LINES ---------------------------------------------
         countColors = specNum - 1
@@ -543,7 +567,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
             # Set lines styles
             lnStyle = '-'
             if plotInstr == 'template':
-                lnWidth = 0.9 #1.1
+                lnWidth = 0.9
             elif plotInstr == 'excluded':
                 lnWidth = 0.5
             else:
@@ -585,16 +609,11 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
                 elif objID[specIdx].startswith('0328+2302'):
                     continue
             
-            subPlot.plot(spec[0], spec[1], color=plotColor, linestyle=lnStyle, \
+            subPlot.plot(spec[0], spec[1], linestyle=lnStyle, \
                          dash_joinstyle='round', linewidth=lnWidth, \
                          label=objLabel, drawstyle='steps-mid', \
-                         zorder=zOrders[specIdx], alpha=alpha)
+                         alpha=alpha, zorder=zOrders[specIdx], color=plotColor)
             
-            # Plot a dummy line on secondary axis to later modify upper x-axis
-            # *Does not work properly as of latest matplotlib version*
-            # if specIdx == 0:
-            # ax2.plot(spec[0],[-0.5] * len(spec[0]), color=WHITE)
-                
             # Track the highest & lowest y-axis values to fix y-axis limits later
             if plotInstr != 'no':
                 tmpMin = np.nanmin(spec[1])
@@ -616,8 +635,11 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         plt.ylim(ymin=minPlot, ymax=maxPlot)
         subPlot.set_xlim(xmin=limits[band]['lim'][0], \
                          xmax=limits[band]['lim'][1] * 1.001)
-        # ax2.set_xlim(xmin=limits[band]['lim'][0], \
-        #              xmax=limits[band]['lim'][1] * 1.001)
+        if band == 'OPT':
+            subPlot.set_xticks((0.65,0.70,0.75,0.80,0.85,0.90))
+            subPlot.set_xticklabels(('','0.7','','0.8','','0.9'))
+        else:
+            subPlot.set_xticks(subPlot.get_xticks()[::2])
         
         # 4j) Customize y axis ------------------------------------------------
         subPlot.spines['left'].set_color('none')
@@ -627,40 +649,38 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         # 4k) Create and format legend (for J band only) ----------------------
         if band == 'J':
             objLegends = subPlot.legend(handlelength=0, handletextpad=0.1, \
-                                      loc='upper left', \
-                                      bbox_to_anchor=(-2.2,0.97), \
-                                      labelspacing=0.3, numpoints=1)
-            objLegends.draw_frame(True)
-            
-            for legendIdx, legendText in enumerate(objLegends.get_texts()):                
-                plt.setp(legendText, color=textColors[legendIdx], \
-                         fontsize=9, fontname='Andale Mono')
+                                      loc='upper left', frameon=True, \
+                                      bbox_to_anchor=(-2.225,0.96), \
+                                      labelspacing=0.2, numpoints=1)
+            for legendIdx, legendText in enumerate(objLegends.get_texts()):
+                #clr = objLegends.get_lines()[legendIdx].get_color()
+                plt.setp(legendText, fontsize=6, fontname='Andale Mono', \
+                         color=textColors[legendIdx])
+                         #color=clr)
             
             # Add Titles for the legends
             legendTitles1 = 'Optical'
-            legendTitles2 = 'Coords.   SpType      J-K'
-            xCoord1 = -1.76
-            xCoord2 = -2.03
-            yCoord1 = 1.0
-            yCoord2 = 0.964
-            subPlot.text(xCoord1, yCoord1, legendTitles1, fontsize=9, \
+            legendTitles2 = 'Coords.   SpType   J-K'
+            xCoord1 = -1.75
+            xCoord2 = -2.14
+            yCoord1 = 0.99
+            yCoord2 = 0.95
+            subPlot.text(xCoord1, yCoord1, legendTitles1, fontsize=7, \
                          transform=subPlot.transAxes)
-            subPlot.text(xCoord2, yCoord2, legendTitles2, fontsize=9, \
+            subPlot.text(xCoord2, yCoord2, legendTitles2, fontsize=7, \
                          transform=subPlot.transAxes)
-        
         # 4l) Add absorption annotations to Subplots --------------------------
         # Sent to addannot only spectra plotted
         specsAnnot = []
         for idxSpec,spec in enumerate(specData[band]):
             if plotInstructions[idxSpec] != 'no':
                 specsAnnot.append(spec)
-        addannot(filter(None, specsAnnot), subPlot, band, classType)
-    
+        addannot(list(filter(None, specsAnnot)), subPlot, band, classType)
     return fig
 
 
 def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, normalize=True):
-    # 1. LOAD RELEVANT MODULES ---------------------------------------------------------
+    # 1. LOAD RELEVANT MODULES ------------------------------------------------
     from astropy.io import ascii
     import astrotools as at
     import numpy as np
@@ -669,7 +689,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     import pdb
     import matplotlib.pyplot as plt
     
-    # 2. SET UP VARIABLES --------------------------------------------------------------
+    # 2. SET UP VARIABLES -----------------------------------------------------
     # Customizable variables <><><><><><><><><><><><><><><><><><><><><><><><><><><>
     FOLDER_ROOT = '/Users/alejo/Dropbox/Project_0/more data/'  # Location of NIR and OPT folders
     FOLDER_IN = '/Users/alejo/Dropbox/Project_0/data/' # Location of input files
@@ -737,7 +757,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     BAND_LIMS['K'  ]['limN'][1] = 2.39
     
     
-    # 3. READ DATA FROM MAIN INPUT FILE -------------------------------------------------
+    # 3. READ DATA FROM MAIN INPUT FILE ---------------------------------------
     DELL_CHAR = '\t' # Delimiter character
     COMM_CHAR = '#'  # Comment character
     
@@ -759,11 +779,11 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         dataS[HDR_FILE_IN_STD[colIdx]] = np.array(dataRawS[colname])
     
     
-    # 4. FORMAT SOME ASCII COLUMNS -----------------------------------------------------
+    # 4. FORMAT SOME ASCII COLUMNS --------------------------------------------
     # 4.1 Convert into unicode the Spectral Type-Text column
     uniSpType = [None] * len(data[colNameType])
     for sIdx,sType in enumerate(data[colNameType]):
-        uniSpType[sIdx] = sType.decode('utf-8')
+        uniSpType[sIdx] = sType #.decode('utf-8')
     data[colNameType] = np.array(uniSpType)
     
     # 4.2 Calculate J-K Color
@@ -783,14 +803,14 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         data[colNameDesig][desigIdx] = desigProper
     
     
-    # 5. FILTER DATA BY USER INPUT IN spInput -------------------------------------------
+    # 5. FILTER DATA BY USER INPUT IN spInput ---------------------------------
     specIdx = []
     # Find all spectra of same spectral type
     for spIdx,spType in enumerate(data[colNameType]):
         if spType.upper().startswith(spInput.upper()):
             specIdx.append(spIdx)
     if not specIdx:
-        print 'No targets found for given input.'
+        print('No targets found for given input.')
         if std is False:
             return
     spTypeInput = spInput.upper()
@@ -814,7 +834,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     specSortIdx = data[colNameJK][specIdx].argsort()
     
     
-    # 6. READ SPECTRAL DATA FROM SPECTRAL FILES ----------------------------------------
+    # 6. READ SPECTRAL DATA FROM SPECTRAL FILES -------------------------------
     spectraRaw    = {}.fromkeys(OPTNIR_KEYS) # Used to store the raw data from fits files
     specFilesDict = {}.fromkeys(OPTNIR_KEYS) # Used for reference purposes
     
@@ -842,7 +862,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
             allNone = False
     
     if allNone:
-        print 'No spectral data found for objects of the given spectral type.'
+        print('No spectral data found for objects of the given spectral type.')
         if std is False:
             return
     
@@ -854,7 +874,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                 spectraRaw[key] = [spectraRaw[key],]
     
     
-    # 7. GATHER OBJECTS' NAMES ---------------------------------------------------------
+    # 7. GATHER OBJECTS' NAMES ------------------------------------------------
     # Filtered objects
     refs = [None] * len(specSortIdx)
     NIRfilenames = [None] * len(specSortIdx)
@@ -873,7 +893,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     objRef = data[colNameRef][specIdx[specSortIdx]]
     
     
-    # 8. SMOOTH SPECTRA -----------------------------------------------------------------
+    # 8. SMOOTH SPECTRA -------------------------------------------------------
     # Smooth the flux data to a reasonable resolution
     spectraS = {}.fromkeys(OPTNIR_KEYS)
     tmpSpOPT = at.smooth_spec(spectraRaw['OPT'], specFile=specFilesDict['OPT'], \
@@ -884,7 +904,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     spectraS['OPT'] = tmpSpOPT
     spectraS['NIR'] = tmpSpNIR
     
-    # 9. SELECT SPECTRAL DATA FOR THE DIFFERENT BANDS ----------------------------------
+    # 9. SELECT SPECTRAL DATA FOR THE DIFFERENT BANDS -------------------------
     # Initialize variables
     spectra  = {}.fromkeys(BANDS_NAMES)
     spectraN = {}.fromkeys(BANDS_NAMES)
@@ -905,18 +925,18 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         spectraN[bandKey], flagN = at.norm_spec(spectra[bandKey], \
                                                BAND_LIMS[bandKey]['limN'], flag=True)
         if flagN:
-            print bandKey + ' LIMITS for normalization changed!'
+            print(bandKey + ' LIMITS for normalization changed!')
         if spectraN[bandKey] is None:
             break
     
     
-    # 10. CHARACTERIZE TARGETS (i.e. identify young, field, and excluded) ---------------
+    # 10. CHARACTERIZE TARGETS (i.e. identify young, field, and excluded) -----
     grav = grav.lower()
     toInclude = [False] * len(refs)
-#    toInclude_LG = [False] * len(refs)
+    # toInclude_LG = [False] * len(refs)
     toExclude = [False] * len(refs)
     dataIncl = []
-#    dataIncl_LG = []
+    # dataIncl_LG = []
     dataExcl = []
     
     # 10.1 Extract NIR file names from "keepers" file
@@ -953,7 +973,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         except:
             dataExcl = []
     if len(dataExcl) == 0 and excluded:
-        print 'No objects found in REJECTS file. Nothing to plot.'
+        print('No objects found in REJECTS file. Nothing to plot.')
         return
     elif len(dataExcl) > 0:
         excludeObjs = np.array(dataExcl['col1']).astype(object)
@@ -995,7 +1015,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     elif grav == 'b':
         plotinstlbl = 'beta'
     else:
-        print 'Wrong gravity input.'
+        print('Wrong gravity input.')
         return
     for plotIdx in range(len(refs)):
         if toInclude[plotIdx]:
@@ -1010,7 +1030,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         if instr != 'no':
             allExcl = False
     if allExcl:
-        print 'No spectral data to plot based on your request.'
+        print('No spectral data to plot based on your request.')
         return
     
     
@@ -1048,7 +1068,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                         if notNans:
                             templSpecs.append(spex)
                         else:
-                            print str(objRef[spIdx]) + ' excluded from template'
+                            print(str(objRef[spIdx]) + ' excluded from template')
                             templInstructions[spIdx] = False
             
             # Calculate template spectrum using spec uncertainties as weights
@@ -1107,9 +1127,12 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                 tmpSPtype = data[colNameType][spIdx] + spDesc
             else:
                 tmpSPtype = data[colNameType][spIdx]
-            tmpSPtype = tmpSPtype + ' ' * (8 - len(tmpSPtype)) # For alignment purposes
+            tmpSPtype = tmpSPtype + ' ' * (7 - len(tmpSPtype)) # For alignment purposes
             
-            objInfo[posIdx] = (tmpDesig + ' ' + tmpSPtype + ' ' + '%.2f' %tmpJK)
+            if tmpDesig == '1126-5003':
+                objInfo[posIdx] = (tmpDesig + ' ' + tmpSPtype + '%.2f' %tmpJK)
+            else:
+                objInfo[posIdx] = (tmpDesig + ' ' + tmpSPtype + ' ' + '%.2f' %tmpJK)
         
         if objInfo[-1] is None:
             objInfo[-1] = 'template' 

@@ -10,44 +10,26 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
     import matplotlib.patches as mpatches
     import types
     
-    # 1) Check data consistency ===============================================
-    try:
-        specData.keys()
-    except AttributeError:
-        print 'Spectra not received as dictionaries.'
-        return
-    try:
-        limits.keys()
-    except AttributeError:
-        print 'Limits not received as dictionaries.'
-        return
-    
     # 2) Initialize variables and color sets to use in plots ==================
     GRAYS = ['#585858', '#686868', '#707070', '#808080', '#909090', \
              '#A0A0A0', '#B0B0B0', '#C0C0C0', '#D0D0D0', '#E0E0E0']
-    # Color order goes from reds to blues
-    #colors = ['#FF0000','#990000','#FF6699','#CC9900','#FFCC33', \
-    #          '#66FF33','#009933','#99FFFF','#33CCFF','#0066FF']
-    
-    colors = ['#990000', '#009933']
-    colors.reverse()
+    #colors = ['#990000', '#009933']
+    #colors.reverse()
+    colors = ['#4393c3','#b2182b']
     X_LABEL = 'Wavelength ($\mu$m)'
     Y_LABEL = 'Normalized Flux (F$_{\lambda}$) + constant'
     
     # 3) Initialize Figure ====================================================
     plt.close()
-    plt.rc('font', size=9)
-    fig = plt.figure(figNum, figsize=(8,6))
+    plt.rc('font', size=8)
+    fig = plt.figure(figNum, figsize=(6.5,5))
+    plt.subplots_adjust(wspace=0.1, hspace=0.001, top=0.99, \
+                        bottom=0.06, right=0.98, left=0.03)
     plt.clf()
     
     # 4) Generate Subplots ====================================================
     bandNames.reverse()
     for bandIdx, band in enumerate(bandNames):
-        
-        # 4.1) If band data is only one set, convert it into array of sets ----
-        if specData[band][0] is not None:
-            if len(specData[band][0]) > 6:
-                specData[band] = [specData[band],]
         
         # 4.2) Initialize variables -------------------------------------------
         spLines = []
@@ -56,20 +38,14 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
         copyColors = list(colors)
         
         # 4.3) Initialize Subplot ---------------------------------------------
-        tmpLeft = 0.06 + (2 - bandIdx) * 0.32
-        subPlot = plt.figure(figNum).add_subplot(1,3,3 - bandIdx, \
-                            position=[tmpLeft,0.06,0.265,0.92])
-                                   # [left,bottom,width,height]
+        subPlot = plt.figure(figNum).add_subplot(1,3,3 - bandIdx)
         subPlot.set_autoscale_on(False)
         
-        # Create dummy axes instance to be able to later manipulate upper axis
-#        ax2 = subPlot.axes.twiny()
-        
         # Set figure and axes labels
-        if bandIdx == 2:
-            subPlot.set_xlabel(X_LABEL, position=(1.65,0.08), fontsize=10)
-            subPlot.set_ylabel(Y_LABEL, fontsize=10)
-        
+        if bandIdx == 1:
+            subPlot.set_xlabel(X_LABEL, labelpad=0)
+        elif bandIdx == 2:
+            subPlot.set_ylabel(Y_LABEL, labelpad=0)
         # 4.4) Plot spectra ---------------------------------------------------
         offset = 0
         lastLbl = objID[0]
@@ -107,7 +83,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
             fluxes = np.array(spec[1])
             
             # Plot spectral strip when available
-            if plotType == 'template' and len(spec) > 3:
+            if plotInstructions[specIdx] == 'template':
                 errs = np.array(spec[2])
                 mins = np.array(spec[3])
                 maxs = np.array(spec[4])
@@ -133,21 +109,21 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
                     rect_color = GRAYS[6]
                     
                     # Add rectangle to plot
-                    rect_patch = mpatches.Rectangle(xy=(rect_x, rect_y), width=rect_width, \
-                                                    height=rect_height, color=rect_color)
+                    rect_patch = mpatches.Rectangle(xy=(rect_x, rect_y), \
+                                                    width=rect_width, \
+                                                    height=rect_height, \
+                                                    color=rect_color)
                     subPlot.add_patch(rect_patch)
             
             # Plot spectral lines
-            ln, = subPlot.plot(wls, fluxes + offset, color=plotColor, linestyle=lnStyle, \
-                               dash_joinstyle='round', linewidth=lnWidth, label=objLabel, \
+            ln, = subPlot.plot(wls, fluxes + offset, color=plotColor, \
+                               linestyle=lnStyle, dash_joinstyle='round', \
+                               linewidth=lnWidth, label=objLabel, \
                                drawstyle='steps-mid')
             #if plotType == 'standardSp':
             #    ln.set_dashes((4,2)) # Makes dashed lines tighter
-            # Plot a dummy line on secondary axis to later modify upper x-axis
-#            if specIdx == 0:
-#                ax2.plot(wls,[-0.5] * len(wls), color=WHITE)
-                
-            # Track the highest & lowest y-axis values to fix y-axis limits later            
+            
+            # Track the highest & lowest y-axis values to fix y-axis limits later
             tmpMin = np.nanmin(fluxes)
             if tmpMin < minPlot:
                 minPlot = tmpMin
@@ -175,7 +151,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
         
         # 4.5) Fix axes limits ------------------------------------------------
         minPlot = minPlot - minPlot * 0.1
-        maxOff = 0.02
+        maxOff = 0.05
         maxPlot = maxPlot + maxPlot * maxOff
         
         plt.ylim(ymin=minPlot, ymax=maxPlot)
@@ -196,15 +172,16 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
             # add lines
             subPlot.axhline(y=ypos, xmin=xp, xmax=xp+0.18, color=BLACK, lw=1.5)
             #subPlot.axhline(y=ypos-0.18, xmin=xp, xmax=xp+0.18, color=BLUE)
-            subPlot.axhline(y=ypos-0.16, xmin=xp, xmax=xp+0.09, color=colors[0], lw=1.5)
-            subPlot.axhline(y=ypos-0.16, xmin=xp+0.1, xmax=xp+0.18, color=colors[1], lw=1.5)
+            subPlot.axhline(y=ypos-0.11, xmin=xp, xmax=xp+0.09, color=colors[0], lw=1.5)
+            subPlot.axhline(y=ypos-0.11, xmin=xp+0.1, xmax=xp+0.18, color=colors[1], \
+                            lw=1.5)
             
             # add texts
-            subPlot.text(xpos + 0.2, ypos - 0.02, 'Templates', fontsize=8, color=BLACK)
+            subPlot.text(xpos + 0.2, ypos - 0.02, 'Templates', color=BLACK)
             #subPlot.text(xpos + 0.2, ypos - 0.2, 'NIR Standards (K10)', fontsize=8, \
             #             color=BLACK)
-            subPlot.text(xpos + 0.2, ypos - 0.18, 'Proposed new standards', \
-                         fontsize=8, color=BLACK)
+            subPlot.text(xpos + 0.2, ypos - 0.13, 'Proposed new standards', \
+                         color=BLACK)
         
     return fig
 
@@ -213,16 +190,17 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
 # 1. LOAD RELEVANT MODULES ----------------------------------------------------
 import nir_opt_comp_strip as nocs
 import astrotools as at
-import asciidata as ad
+import astropy.io.ascii as ad
 import numpy as np
 import matplotlib.pyplot as plt
 import pdb
 
-execfile('def_constants.py')
+with open("def_constants.py") as f:
+    code = compile(f.read(), "def_constants.py", "exec")
+    exec(code)
 
 # 2. SET UP VARIABLES ---------------------------------------------------------
 GRAV = 'f'
-DELL_CHAR = '\t' # Delimiter character
 SPECIAL_H_NORM_LIM = [1.41,1.89] # [1.41, 1.81] these are the special values
 
 # Special standards
@@ -271,16 +249,9 @@ for idxTp, spTp in enumerate(SPTYPES):
     # Fetch template from ascii files generated by make_templ.py in templates/ folder.
     for bdIdx, band in enumerate(BANDS):
         fileNm = spTp + band + '_' + GRAV + '.txt'
-        try:
-            templRaw = ad.open(FOLDER_OUT_TMPL + fileNm, delimiter=DELL_CHAR)
-        except IOError:
-            templRaw = None
-        
-        if templRaw is None:
-            # L9 has no template, so use L8 again
-            templRawToPlot = spectra[band][-2]
-        else:
-            templRawToPlot = np.array(templRaw).tolist()
+        templRaw = ad.read(FOLDER_OUT_TMPL + fileNm, delimiter='\t', \
+                           format='no_header')
+        templRawToPlot = np.array([templRaw.columns[i] for i in range(5)])
         
         # Normalize when necessary
         if len(templRawToPlot) <= 3:

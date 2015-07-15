@@ -80,7 +80,7 @@ def avg_flux(startW, endW, SpecData, median=False, verbose=True):
     # See if the wavelength range falls inside the wavelength array
     if np.min(Wavelength_big) > startW or np.max(Wavelength_big) < endW:
         if verbose == True:
-            print 'avg_flux: wavelength interval out of range'
+            print('avg_flux: wavelength interval out of range')
         return
     # See that wavelength range does not fall between data points in 
     # wavelength array
@@ -90,7 +90,7 @@ def avg_flux(startW, endW, SpecData, median=False, verbose=True):
     temp = np.array(list(set1.intersection(set2)))
     if len(temp) == 0:
         if verbose == True:
-            print 'avg_flux: there is no data in the selected interval'
+            print('avg_flux: there is no data in the selected interval')
         return
     
     # Winds the pixel scale
@@ -157,20 +157,20 @@ def avg_flux(startW, endW, SpecData, median=False, verbose=True):
     
     if median == True and num_pixels > 5:
         if verbose == True:
-            print 'median worked'
+            print('median worked')
         old = avgflux
         avgflux = np.median(Flux)
         
         if 100 * np.abs(avgflux - old) / old > 3:
-            print 'avg_flux: WARNING: difference between average and median ' \
-                  & 'is greater than 3%'
-            print 'avg_flux: median = ' + str(avgflux) + ',\t' + ' average = ' \
-                  + str(old)
-            print 'avg_flux: difference % = ' + \
-                  str(100 * np.abs(avgflux - old) / old)
+            print('avg_flux: WARNING: difference between average and median ' \
+                  & 'is greater than 3%')
+            print('avg_flux: median = ' + str(avgflux) + ',\t' + ' average = ' \
+                  + str(old))
+            print('avg_flux: difference % = ' + \
+                  str(100 * np.abs(avgflux - old) / old))
         else:
             if verbose == True:
-                print 'median worked'
+                print('median worked')
         
     return [avgflux, sigflux]
 
@@ -192,7 +192,7 @@ def clean_outliers(data, thresh):
     try:
         data[0]
     except TypeError:
-        print 'Data invalid.'
+        print('Data invalid.')
         return
     
     # Calculate median and median absolute deviation
@@ -201,7 +201,7 @@ def clean_outliers(data, thresh):
     
     dataClean = np.array(data).copy()
     if mad == 0:
-        print 'MAD is equal to zero.'
+        print('MAD is equal to zero.')
     else:
         outlierIdx = np.where(abs((dataClean - med) / mad) > thresh)
         if len(outlierIdx) != 0:
@@ -259,7 +259,7 @@ def create_ascii(listObj, saveto=None, header=None, delimiter='\t'):
         try:
             asciiObj.writeto(saveto + fileTp)
         except IOError:
-            print 'Invalid name/location to save ascii file.'
+            print('Invalid name/location to save ascii file.')
     
     return asciiObj
 
@@ -276,7 +276,7 @@ def integrate(xyData):
     
     try:
         if len(xyData) != 2:
-            print 'Cannot integrate, object does not have necessary parameters.'
+            print('Cannot integrate, object does not have necessary parameters.')
             return 
         else:
             xData = xyData[1]
@@ -288,10 +288,10 @@ def integrate(xyData):
                     integral = integral + (xData[n + 1] - xData[n]) * \
                                (yData[n + 1] + yData[n]) * 0.5
             except ValueError:
-                print 'Data type cannot be integrated'
+                print('Data type cannot be integrated')
                 return
     except TypeError:
-        print 'Cannot integrate.'
+        print('Cannot integrate.')
         return
     
     return integral
@@ -323,19 +323,19 @@ def mean_comb(spectra, mask=None, robust=None, forcesimple=False, extremes=False
     try:
         spectra[0]
     except TypeError:
-        print 'Spectra invalid.'
+        print('Spectra invalid.')
         return
     if mask is not None:
         try:
             mask[0]
         except TypeError:
-            print 'Mask invalid.'
+            print('Mask invalid.')
             return
     if robust is not None:
         try:
             float(robust)
         except TypeError:
-            print 'Robust invalid.'
+            print('Robust invalid.')
             return
     
     # 1. Generate mask using the first spectrum given
@@ -466,7 +466,7 @@ def norm_spec(specData, limits, flag=False):
     
     # Check that given limits are reasonable
     if limits[0] >= limits[1]:
-        print 'norm_spec: the Min and Max values specified are not reasonable.'
+        print('norm_spec: the Min and Max values specified are not reasonable.')
         return None
     
     # Re-define normalizing band (specified in limits) for each spectrum in case
@@ -519,7 +519,7 @@ def norm_spec(specData, limits, flag=False):
         # no band can be selected
         if smallIdx != [None]:
             if len(smallIdx[0]) == len(spData[0]):
-                print 'norm_spec: the wavelength data for object is outside limits.' 
+                print('norm_spec: the wavelength data for object is outside limits.' )
                 continue
             else:
                 minIdx = smallIdx[0][-1] + 1
@@ -539,14 +539,14 @@ def norm_spec(specData, limits, flag=False):
         # no band can be selected
         if largeIdx != [None]:
             if len(largeIdx[0]) == len(spData[0]):
-                print 'norm_spec: the wavelength data for object is outside limits.'
+                print('norm_spec: the wavelength data for object is outside limits.')
                 continue
             else:
                 maxIdx = largeIdx[0][0]
         
         # 5) Check for consistency in the computed band limits
         if maxIdx - minIdx < 2:
-            print 'norm_spec: The Min and Max values specified yield no band.'
+            print('norm_spec: The Min and Max values specified yield no band.')
             continue
             
         # 6) Select flux band from spectrum
@@ -668,13 +668,13 @@ def read_spec(specFiles, errors=True, atomicron=False, negtonan=False, plot=Fals
     '''
     
     # 1. Convert specFiles into a list type if it is only one file name
-    if isinstance(specFiles, types.StringTypes):
+    if isinstance(specFiles, str):
         specFiles = [specFiles,]
     
     try:
         specFiles[0]
     except TypeError:
-        print 'File name(s) in invalid format.'
+        print('File name(s) in invalid format.')
         return
     
     # 2. Initialize array to store spectra
@@ -694,18 +694,19 @@ def read_spec(specFiles, errors=True, atomicron=False, negtonan=False, plot=Fals
             try:
                 fitsData, fitsHeader = pf.getdata(spFile, header=True)
             except IOError:
-                print 'Could not open ' + str(spFile) + '.'
+                print('Could not open ' + str(spFile) + '.')
                 continue
         # Assume ascii file otherwise (isFits = False)
         else:
             try:
-                import asciidata as ad
-                aData = ad.open(spFile)
-                specData[spFileIdx] = [aData[0].tonumpy(), aData[1].tonumpy()]
+                import astropy.io.ascii as ad
+                aData = ad.read(spFile)
+                specData[spFileIdx] = [aData.columns[0], \
+                                       aData.columns[1]]
                 if len(aData) >= 3 and errors:
-                    specData[spFileIdx].append(aData[2].tonumpy())
+                    specData[spFileIdx].append(aData.columns[2])
             except IOError:
-                print 'Could not open ' + str(spFile) + '.'
+                print('Could not open ' + str(spFile) + '.')
                 continue
         
         # 3.3. Check if data in fits file is linear
@@ -714,7 +715,7 @@ def read_spec(specFiles, errors=True, atomicron=False, negtonan=False, plot=Fals
             setType  = set(KEY_TYPE).intersection(set(fitsHeader.keys()))
             if len(setType) == 0:
                 if verbose:
-                    print 'Data in ' + spFile + ' assumed to be linear.'
+                    print('Data in ' + spFile + ' assumed to be linear.')
                 isLinear = True
             else:
                 valType = fitsHeader[setType.pop()]
@@ -724,7 +725,7 @@ def read_spec(specFiles, errors=True, atomicron=False, negtonan=False, plot=Fals
                     isLinear = False
             if linear and not isLinear:
                 if verbose:
-                    print 'Data in ' + spFile + ' is not linear.'
+                    print('Data in ' + spFile + ' is not linear.')
                 return
         
         # 3.4. Get wl, flux & error data from fits file
@@ -757,8 +758,8 @@ def read_spec(specFiles, errors=True, atomicron=False, negtonan=False, plot=Fals
             if len(negIdx[0]) > 0:
                 specData[spFileIdx][1][negIdx] = 0
                 if verbose:
-                    print '%i negative data points found in %s.' \
-                            % (len(negIdx[0]), spFile)
+                    print('%i negative data points found in %s.' \
+                            % (len(negIdx[0]), spFile))
         
         # 3.7. Set zero flux values as nans (do this always)
         zeros = np.where(specData[spFileIdx][1] == 0)
@@ -800,7 +801,7 @@ def sel_band(specData, limits, objID='NA'):
     
     # Check that given limits are reasonable
     if limits[0] >= limits[1]:
-        print 'sel_band: the Min and Max values specified are not reasonable.'
+        print('sel_band: the Min and Max values specified are not reasonable.')
         return None
     
     # Loop through each spectral data set
@@ -827,8 +828,8 @@ def sel_band(specData, limits, objID='NA'):
         # If lower limit > all values in spectrum wavelength points, then
         # no band can be selected
         elif len(smallIdx[0]) == len(spData[0]):
-            print 'sel_band: the wavelength data for object %s is outside ' \
-                  + 'the given limits.' %objID[spIdx]
+            print('sel_band: the wavelength data for object ', objID[spIdx], \
+                  ' is outside the given limits.')
             continue
         else:
             minIdx = smallIdx[0][-1] + 1
@@ -844,16 +845,16 @@ def sel_band(specData, limits, objID='NA'):
         # If upper limit < all values in spectrum wavelength points, then
         # no band can be selected
         elif len(largeIdx[0]) == len(spData[0]):
-            print 'sel_band: the wavelength data for object %s is outside  ' \
-                  + 'the given limits.' %objID[spIdx]
+            print('sel_band: the wavelength data for object %s is outside  ' \
+                  + 'the given limits.' %objID[spIdx])
             continue
         else:
             maxIdx = largeIdx[0][0]
         
         # 5) Check for consistency in the computed band limits
         if maxIdx - minIdx < 2:
-            print 'sel_band: The Min and Max values specified for object %s ' \
-                  + 'yield no band.' %objID[spIdx]
+            print('sel_band: The Min and Max values specified for object %s ' \
+                  + 'yield no band.' %objID[spIdx])
             continue
             
         # 6) Select flux band from spectrum
@@ -899,7 +900,7 @@ def smooth_spec(specData, oldres=None, newres=200, specFile=None, winWidth=10):
     # Convert into python list type when only one set of spectrum and fits file
     if len(specData) <= 3 and len(specData[0]) > 10:
         specData = [specData]
-    if isinstance(specFile,types.StringTypes):
+    if isinstance(specFile, str):
         specFile = [specFile]
     
     smoothData = []
@@ -999,7 +1000,7 @@ def __create_waxis(fitsHeader, lenData, fileName, verb=True):
     else:
         wAxis = None
         if verb:
-            print 'Could not re-create wavelength axis for ' + fileName + '.'
+            print('Could not re-create wavelength axis for ' + fileName + '.')
     
     return wAxis
 
@@ -1087,7 +1088,7 @@ def __get_spec(fitsData, fitsHeader, fileName, errorVals, templ=False, verb=True
     # No interpretation known for fits file data sets
         validData = None
         if verb:
-            print 'Unable to interpret data in ' + fileName + '.'
+            print('Unable to interpret data in ' + fileName + '.')
         return validData
     else:
         if waveIdx is not None:
