@@ -5,6 +5,8 @@ Initialize variables used in all other scripts.
 import numpy as np
 
 # Folders
+global ROOT, FOLDER_MAIN, FOLDER_GIT, FOLDER_DATA, FOLDER_DATASPEC
+global FOLDER_OUT_PLT, FOLDER_OUT_TMPL
 ROOT = '/Users/alejo/Dropbox/'
 FOLDER_MAIN = ROOT + 'Project_0/'
 FOLDER_GIT = ROOT + 'Python/BDNYC_specfigures/' # Folder with ACCESS table (git-linked)
@@ -40,6 +42,7 @@ COLOR_SET = np.array(['#CC3333','#FF0000','#CC0000','#990000','#CC3300', \
             # 15-silver, 16-lt green, 17-aquamarine, 18-yellow green, 19-lime,
             # 20-green, 21-forest, 22-dk green, 23-navy, 24-blue
             # 25-sky blue, 26-lt blue, 27-orchid, 28-steel blue, 29-royal blue
+global colorSet
 colorSet = [None] * 31
 colorSet[30] = COLOR_SET.copy().tolist()
 colorSet[29] = COLOR_SET[[0,1,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18, \
@@ -74,19 +77,25 @@ colorSet[13] = COLOR_SET[[1,3,4,7,11,12,19,20,21,24,25,27,29]].tolist()
 colorSet[12] = COLOR_SET[[1,3,4,7,11,12,19,20,21,25,27,29]].tolist()
 colorSet[11] = COLOR_SET[[1,3,4,11,12,19,20,21,25,27,29]].tolist()
 colorSet[10] = COLOR_SET[[1,4,11,12,19,20,21,25,27,29]].tolist()
-colorSet[9]  = COLOR_SET[[1,4,11,12,19,20,25,27,29]].tolist()
-colorSet[8]  = COLOR_SET[[1,4,11,12,19,20,25,29]].tolist()
-colorSet[7]  = COLOR_SET[[1,4,12,19,20,25,29]].tolist()
-colorSet[6]  = COLOR_SET[[1,4,12,20,25,29]].tolist()
-colorSet[5]  = COLOR_SET[[1,4,12,20,29]].tolist()
-colorSet[4]  = COLOR_SET[[1,12,20,29]].tolist()
-colorSet[3]  = COLOR_SET[[1,20,29]].tolist()
-colorSet[2]  = COLOR_SET[[1,29]].tolist()
-colorSet[1]  = COLOR_SET[[29]].tolist()
+colorSet[9]  = ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7', \
+                '#92c5de','#4393c3','#2166ac','#053061']
+colorSet[8]  = ['#67001f','#b2182b','#d6604d','#f4a582', \
+                '#92c5de','#4393c3','#2166ac','#053061']
+colorSet[7]  = ['#b2182b','#d6604d','#f4a582','#fddbc7','#92c5de', \
+                '#4393c3','#2166ac']
+colorSet[6]  = ['#b2182b','#d6604d','#f4a582','#92c5de','#4393c3','#2166ac']
+colorSet[5]  = ['#b2182b','#d6604d','#f4a582','#4393c3','#053061']
+#['#b2182b','#ef8a62','#fddbc7','#67a9cf','#2166ac']
+colorSet[4]  = ['#ca0020','#f4a582','#92c5de','#0571b0']
+colorSet[3]  = ['#ca0020','#f4a582','#0571b0']
+colorSet[2]  = ['#ca0020','#0571b0']
+colorSet[1]  = ['#2166ac']
 
 # Spectral variables
+global SPTYPES
 SPTYPES = ('L0','L1','L2','L3','L4','L5','L6','L7','L8')
 SPTYPESN = (10,11,12,13,14,15,16,17,18)
+global BANDS
 BANDS = ['J','H','K']
 BAND_LIMS = {}.fromkeys(BANDS)
 NORM_LIMS = {}.fromkeys(BANDS)
