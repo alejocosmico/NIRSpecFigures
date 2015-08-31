@@ -1,5 +1,0 @@
-# 2 L4lg dwarfs used for template construction because
-# reduced chi2 < 1.00000 in all bands (but not full spectrum)
-# Name	J chi2	H chi2	K chi2
-U20198_2M0501-0010_dagny 	0.904915	0.773074	0.904915       2
-U40005_2249+0044_katelyn 	0.217783	0.293412	0.217783       2

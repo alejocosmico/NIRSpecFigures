@@ -1,6 +1,0 @@
-# 3 L0lg dwarfs rejected from template construction because 
-# reduced chi2 > 2.00000 in any band (but not full spectrum)
-# Name	J chi2	H chi2	K chi2
-U40021_Roque25_dagny 	20.9719	16.7585	22.1583
-U40106_0406-3812 	6.87747	5.93773	9.72869
-spex_prism_0323-4631_U20157 	4.27518	6.13461	4.81714

@@ -1,4 +1,0 @@
-# 1 L5lg dwarfs rejected from template construction because 
-# reduced chi2 > 1.50000 in any band (but not full spectrum)
-# Name	J chi2	H chi2	K chi2
-U20171_0355+1133 	26.1120	16.6694	124.109
