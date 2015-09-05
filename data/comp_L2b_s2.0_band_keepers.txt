@@ -1,6 +1,0 @@
-# 3 L2b dwarfs used for template construction because
-# reduced chi2 < 2.00000 in all bands (but not full spectrum)
-# Name	J chi2	H chi2	K chi2
-U10381_0518-2756 	0.591415	0.571625	0.591415       2
-spex_prism_U10074_060821 	0.850461	0.813506	0.850461       2
-U20037_2M0045+1634_adam 	0.604693	0.702435	0.604693       2
