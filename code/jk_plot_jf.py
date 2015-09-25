@@ -3,11 +3,14 @@ Reads OptNIR_ALL.txt file and creates plot of avg spectral types v. J-K colors f
 '''
 
 import numpy as np
-import asciidata as ad
+import astropy.io.ascii as asc
 import matplotlib.pyplot as plt
 import pdb  
 
-execfile('def_constants.py')
+with open("def_constants.py") as f:
+    code = compile(f.read(), "def_constants.py", "exec")
+    exec(code)
+
 # Faherty-12 J-K averages, extremes, and counts, L0 to L8 in sequential order
 JKAVGS    = np.array([1.3,1.35,1.48,1.64,1.69,1.72,1.84,1.75,1.85])
 EXTREMES = np.array([[0.809,1.98],[0.95,1.926],[0.974,1.946],[1.136,2.103],[1.168,2.178], \
@@ -16,13 +19,11 @@ COUNTS   = np.array([102,95,60,51,33,28,13,9,10])
 SPTYPESN = np.array(SPTYPESN)
 
 # Read data
-dataraw = ad.open(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
-data = np.array(dataraw).T
-data = np.delete(data, 0 , axis=0) # Delete first row (headers)
-sptypes = data[:,4].astype('float')
-jks = data[:,2].astype('float')
-jksuncs = data[:,3].astype('float')
-categories_raw = data[:,6]
+dataraw = asc.read(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
+sptypes = dataraw.columns['SpType']
+jks = dataraw.columns['J-K']
+jksuncs = dataraw.columns['J-K_unc']
+categories_raw = dataraw.columns['NStars Publication.Table']
 
 # Format some columns
 categories = np.zeros(categories_raw.shape)
@@ -44,9 +45,9 @@ extremes = np.array(extremes)
 
 # Plot data -------------------------------------------------------------------
 plt.close()
-fig = plt.figure(1, figsize=(6,6))
+fig = plt.figure(1, figsize=(3.30709, 3.30709)) # 84 x 84 mm
 plt.clf()
-plt.rc('font', size=15)
+plt.rc('font', size=8)
 ax = fig.add_axes([0.12,0.09,0.86,0.88]) # left, bottom, width, height
 
 # Plot Faherty data
@@ -54,14 +55,14 @@ extremes_JF = EXTREMES.T.copy()
 extremes_JF[0,:] = JKAVGS - extremes_JF[0,:]
 extremes_JF[1,:] = extremes_JF[1,:] - JKAVGS
 ax.errorbar(SPTYPESN-0.1, JKAVGS, yerr=extremes_JF, ecolor=L_BLUE, linestyle='', marker='o', \
-            markersize=10, markerfacecolor=L_BLUE, markeredgecolor='none', markeredgewidth=1.1)
+            markersize=6, markerfacecolor=L_BLUE, markeredgecolor='none', markeredgewidth=1.1)
 
 # Plot Kelle data
 extremes_KC = extremes.T.copy()
 extremes_KC[0,:] = jksavgs - extremes_KC[0,:]
 extremes_KC[1,:] = extremes_KC[1,:] - jksavgs
 ax.errorbar(SPTYPESN+0.1, jksavgs, yerr=extremes_KC, ecolor=BLACK, linestyle='', marker='s', \
-            markersize=10, markerfacecolor=BLACK, markeredgecolor='none', markeredgewidth=1.1)
+            markersize=6, markerfacecolor=BLACK, markeredgecolor='none', markeredgewidth=1.1)
 
 # Annotate top of Faherty bars
 for idxc, count in enumerate(COUNTS):
@@ -70,7 +71,7 @@ for idxc, count in enumerate(COUNTS):
     else:
         xoff = 9.9
     loc = (idxc + xoff, EXTREMES[idxc,1]+0.01)
-    ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=11, \
+    ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=7, \
             ha='center')
 
 # Annotate top of Kelle bars
@@ -80,7 +81,7 @@ for idxc, count in enumerate(counts):
     else:
         xoff = 10.1
     loc = (idxc + xoff, extremes[idxc,1]+0.01)
-    ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=11, \
+    ax.text(loc[0],loc[1],str(int(count)), color=GRAY, fontstyle='italic', fontsize=7, \
             ha='center')
 
 # Format plot (make lots of things disappear)
@@ -98,12 +99,12 @@ tcks = ax.yaxis.get_ticklines()
 for tl in tcks:
     tl.set_color(WHITE)
 
-ax.set_xlabel('Optical spectral type')
-ax.set_ylabel(r'J-K$_s$ (2MASS)')
+ax.set_xlabel('Optical spectral type', labelpad=0)
+ax.set_ylabel(r'J-K$_s$ (2MASS)', labelpad=0)
 ax.set_xticks(SPTYPESN)
 ax.set_xticklabels(SPTYPES)
 ax.set_yticks(np.arange(0.8,2.8,0.2))
-ax.set_ylim(0.79,2.605)
+ax.set_ylim(0.79,2.45)
 ax.set_xlim(9.6, 18.5)
 
 # Add horizontal grid
@@ -114,27 +115,27 @@ ax.set_axisbelow(True)
 loc = (15-0.1, 1.2)
 loctext = (14.7, 0.88)
 linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=L_BLUE, relpos=(1,0))
-plt.annotate('Faherty et al. \'13', xy=loc, xytext=loctext, fontsize=14, color=L_BLUE, \
+plt.annotate('Faherty et al. \'13', xy=loc, xytext=loctext, fontsize=8, color=L_BLUE, \
              ha='right', arrowprops=linetype)
 loctext = (14.7, 0.815)
-plt.annotate('photometric sample', xy=loc, xytext=loctext, fontsize=14, color=L_BLUE, \
+plt.annotate('photometric sample', xy=loc, xytext=loctext, fontsize=8, color=L_BLUE, \
              ha='right')
 
 # Annotate Kelle data
-loc = (15+0.1, 1.51)
-loctext = (15.5, 1.27)
+loc = (15+0.1, 1.56)
+loctext = (15.45, 1.27)
 linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=BLACK, relpos=(0,0))
-plt.annotate('field gravity', xy=loc, xytext=loctext, fontsize=14, color=BLACK, \
+plt.annotate('field gravity', xy=loc, xytext=loctext, fontsize=8, color=BLACK, \
              ha='left', arrowprops=linetype)
-loctext = (15.5, 1.205)
-plt.annotate('template objects', xy=loc, xytext=loctext, fontsize=14, color=BLACK, \
+loctext = (15.45, 1.205)
+plt.annotate('template objects', xy=loc, xytext=loctext, fontsize=8, color=BLACK, \
              ha='left')
 
 # Annotate bin numbers
 loc = (13-0.1, 2.15)
 loctext = (10.5, 2.3)
-linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=2, color=GRAY, relpos=(1,0))
-plt.annotate('objects in bin', xy=loc, xytext=loctext, fontsize=11, color=GRAY, \
+linetype = dict(arrowstyle='-', shrinkB=4, shrinkA=0, color=GRAY, relpos=(1,0))
+plt.annotate('objects in bin', xy=loc, xytext=loctext, fontsize=8, color=GRAY, \
              ha='left', arrowprops=linetype)
 
 fig.savefig(FOLDER_OUT_PLT + 'JK_JF.pdf', dpi=300)

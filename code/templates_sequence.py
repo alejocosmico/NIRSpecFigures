@@ -176,10 +176,10 @@ def addannot(specData, subPlot, bandName, classType):
                 y_range = ylims[1] - ylims[0] 
                 
                 if annotation[0] == H2O or annotation[0] == H2OH2:
-                    mult1 = 0.94
+                    mult1 = 0.93
                     mult2 = 0.017
                 elif annotation[0] == COH2O:
-                    mult1 = 0.87
+                    mult1 = 0.86
                     mult2 = 0.017
                 elif annotation[0] == 'TiO':
                     mult1 = 0.930
@@ -191,7 +191,7 @@ def addannot(specData, subPlot, bandName, classType):
                     mult1 = 0.640
                     mult2 = 0.007
                 elif annotation[0] == 'VO' and bandName == 'J':
-                    mult1 = 0.89
+                    mult1 = 0.88
                     mult2 = 0.007
                 elif annotation[0] == 'FeH':
                     mult1 = 0.080
@@ -293,9 +293,7 @@ def main(grav):
     SKIPL1 = True
     DELL_CHAR = '\t' # Delimiter character
     COMM_CHAR = '#'  # Comment character
-
-    #grav = raw_input('Enter gravity (f, lg, g, b): ').lower()
-
+    
     # Break down template sequence for plotting
     if grav == 'f':
         DIVISIONS = [0,5,9] # EDIT THIS ARRAY TO BREAK DOWN FIELD SEQUENCE

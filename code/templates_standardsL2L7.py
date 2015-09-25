@@ -1,7 +1,7 @@
 ''' 
 Plots the NIR Kirkpatrick L standards against the NIR L templates calculated using nir_opt_comp_strip.
 '''
-def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
+def plotspec(specData, bandNames, limits, objID, plotInstructions, specnames,figNum=1):
     # Plots set of spectral data and saves plots in a PDF file.
     # specData and limits must be dictionaries.
     
@@ -15,14 +15,14 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
              '#A0A0A0', '#B0B0B0', '#C0C0C0', '#D0D0D0', '#E0E0E0']
     #colors = ['#990000', '#009933']
     #colors.reverse()
-    colors = ['#4393c3','#b2182b']
+    colors = [colorSet[9][::-1][2], colorSet[9][::-1][5], colorSet[9][::-1][7]]
     X_LABEL = 'Wavelength ($\mu$m)'
     Y_LABEL = 'Normalized Flux (F$_{\lambda}$) + constant'
     
     # 3) Initialize Figure ====================================================
     plt.close()
     plt.rc('font', size=8)
-    fig = plt.figure(figNum, figsize=(6.5,5))
+    fig = plt.figure(figNum, figsize=(6.5,6.5))
     plt.subplots_adjust(wspace=0.1, hspace=0.001, top=0.99, \
                         bottom=0.06, right=0.98, left=0.03)
     plt.clf()
@@ -51,9 +51,6 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
         lastLbl = objID[0]
         lastColor = copyColors[-1]
         for specIdx, spec in enumerate(specData[band]):
-            if spec is None:
-                continue
-            
             # Define plot parameters
             plotType = plotInstructions[specIdx]
             lnStyle = '-'
@@ -172,8 +169,10 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, figNum=1):
             # add lines
             subPlot.axhline(y=ypos, xmin=xp, xmax=xp+0.18, color=BLACK, lw=1.5)
             #subPlot.axhline(y=ypos-0.18, xmin=xp, xmax=xp+0.18, color=BLUE)
-            subPlot.axhline(y=ypos-0.11, xmin=xp, xmax=xp+0.09, color=colors[0], lw=1.5)
-            subPlot.axhline(y=ypos-0.11, xmin=xp+0.1, xmax=xp+0.18, color=colors[1], \
+            subPlot.axhline(y=ypos-0.11, xmin=xp, xmax=xp+0.06, color=colors[0], lw=1.5)
+            subPlot.axhline(y=ypos-0.11, xmin=xp+0.06, xmax=xp+0.12, color=colors[1], \
+                            lw=1.5)
+            subPlot.axhline(y=ypos-0.11, xmin=xp+0.12,xmax=xp+0.18,color=colors[2], \
                             lw=1.5)
             
             # add texts
@@ -204,8 +203,10 @@ GRAV = 'f'
 SPECIAL_H_NORM_LIM = [1.41,1.89] # [1.41, 1.81] these are the special values
 
 # Special standards
-# L2: 10244, L7: 20925
-SPSTD = ['U10244_0408-1450.fits', 'U20925.fits']
+# L2: 10244, L5: 20909, L7: 10721
+SPSTDNM = ['L2','L5','L7']
+SPNAMES = ['0408-1450', '2137+0808', '0825+2115']
+SPSTD = ['U10244_0408-1450.fits', 'spex_prism_2137+0808_U20909.fits', 'u10721_050323.fits']
 
 # 3. GET SPECTRAL NIR STANDARDS & TEMPLATES -----------------------------------
 plotInstructions = []
@@ -215,13 +216,15 @@ for band in BANDS:
     spectra[band] = []
 
 for idxTp, spTp in enumerate(SPTYPES):
-    if not(spTp in ['L2', 'L7']): continue
-    # Fetch and normalize special standard (L2 and L7 only)
-    if spTp == 'L2' or spTp == 'L7':
+    if not(spTp in SPSTDNM): continue
+    # Fetch and normalize special standard (L2, L5 and L7 only)
+    if spTp in SPSTDNM:
         if spTp == 'L2':
             isp = 0
-        else:
+        elif spTp == 'L5':
             isp = 1
+        else:
+            isp = 2
         tmpspec = at.read_spec(FOLDER_DATASPEC + 'NIR/' + SPSTD[isp], errors=False, \
                                atomicron=True, negtonan=True)
         for band in BANDS:
@@ -267,7 +270,7 @@ for idxTp, spTp in enumerate(SPTYPES):
     # Append plot label list
     spTypes.append(spTp)
     #spTypes.append(spTp)
-    if spTp == 'L2' or spTp == 'L7':
+    if spTp in SPSTDNM:
         plotInstructions.append('standardSp')
     # plotInstructions.append('standard')
     plotInstructions.append('template')
@@ -278,6 +281,6 @@ for band in BANDS:
     spectra[band].reverse()
 
 # 4. PLOT ALL SPECTRA ---------------------------------------------------------
-figure = plotspec(spectra, BANDS, BAND_LIMS, spTypes, plotInstructions)
+figure = plotspec(spectra, BANDS, BAND_LIMS, spTypes, plotInstructions, SPNAMES)
                   
 plt.savefig(FOLDER_OUT_PLT + '/templates-stdsL2L7.pdf', dpi=300)

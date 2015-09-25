@@ -210,22 +210,20 @@ def clean_outliers(data, thresh):
     return dataClean
 
 
-def create_ascii(listObj, saveto=None, header=None, delimiter='\t'):
+def create_ascii(listObj, saveto=None, delimiter='\t'):
     '''
     (by Alejandro N |uacute| |ntilde| ez)
     
-    Save data from a Python list into an ascii file. It returns an asciidata type instance defined in the *asciidata* module.
+    Save data from a Python list into an ascii file. It returns an asciidata type instance defined in the *ascii* module of astropy.
     
     *listObj*
         Python list object with data to be saved.
     *saveto*
         String with name for ascii file. If no full path is provided, ascii file is created in the current directory. If no name is provided, ascii file is not created, only asciidata type instance is returned. This file name does not need to include extension (e.g. ".txt").
-    *header*
-        String or Python list of strings to be included as header information for the ascii file. This string (or list of strings) will appear as comments at the top of the ascii file contents.
     *delimiter*
         String specifying the delimiter desired for the ascii file. The default is *tab delimited*.
     '''
-    import asciidata as ad
+    import astropy.io.ascii as asc
     
     # Initialize variables
     DELIMITER = '\t'
@@ -238,26 +236,22 @@ def create_ascii(listObj, saveto=None, header=None, delimiter='\t'):
             numRows = len(col)
     
     # Create ascii table
-    asciiObj = ad.create(numCols, numRows, delimiter=DELIMITER)
+    asciiObj = np.zeros((numRows, numCols))
+    #asciiObj = ascii.create(numCols, numRows, delimiter=DELIMITER)
     
     # Populate the asciidata table
-    for colIdx in range(asciiObj.ncols):
-        for rowIdx in range(len(listObj[colIdx])):
-            asciiObj[colIdx][rowIdx] = listObj[colIdx][rowIdx]
-    
-    # Add header info
-    if header is not None:
-        if isinstance(header, types.StringTypes):
-            asciiObj.header.append(header)
-        else:
-            for headerRow in header:
-                asciiObj.header.append(headerRow)
+    for rowIdx in range(numRows):
+    #for colIdx in range(asciiObj.ncols):
+        for colIdx in range(numCols):
+        #for rowIdx in range(len(listObj[colIdx])):
+            asciiObj[rowIdx,colIdx] = listObj[colIdx][rowIdx]
     
     # Save file
     if saveto is not None:
         fileTp = '.txt'
         try:
-            asciiObj.writeto(saveto + fileTp)
+            asc.write(asciiObj, saveto + fileTp, delimiter=DELIMITER, format='no_header')
+            #asciiObj.writeto(saveto + fileTp)
         except IOError:
             print('Invalid name/location to save ascii file.')
     

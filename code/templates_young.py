@@ -219,13 +219,13 @@ grav = input('Enter young gravity (lg, g, b): ').lower()
 if grav == 'lg':
     YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5']
     # Color order goes from reds to blues
-    colors = colorSet[6]
+    colors = colorSet[len(YOUNG_SPTYPES)]
 elif grav == 'b':
     YOUNG_SPTYPES = ['L0', 'L1']
-    colors = colorSet[2]
+    colors = colorSet[len(YOUNG_SPTYPES)]
 elif grav == 'g':
-    YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4', 'L5']
-    colors = colorSet[6]
+    YOUNG_SPTYPES = ['L0', 'L1', 'L2', 'L3', 'L4'] #, 'L5']
+    colors = colorSet[len(YOUNG_SPTYPES)]
 
 # 3. LOOP THROUGH YOUNG NIR TEMPLATES -----------------------------------------
 for ysptp in YOUNG_SPTYPES:

@@ -53,7 +53,7 @@ def addannot(specData, subPlot, bandName, classType):
         #         For Band, if < 1 then annotation below line
         ANNOT[0]  = ['VO',   (0.7300,0.7550),    0, 'Band']
         ANNOT[1]  = ['K I',  (0.7665,0.7699), offK, 'Doublet']
-        ANNOT[2]  = ['Rb I', (0.7800,0.7948),   50, 'Doublet']
+        ANNOT[2]  = ['Rb I', (0.7800,0.7948),   40, 'Doublet']
         ANNOT[3]  = ['VO',   (0.7850,0.8000),    0, 'Band']
         ANNOT[4]  = ['Na I', (0.8176,0.8200),   20, 'Doublet']
         ANNOT[5]  = ['TiO',  (0.8410,0.8550),    0, 'Band']
@@ -68,7 +68,7 @@ def addannot(specData, subPlot, bandName, classType):
         ANNOT[1]  = ['FeH', (0.980,1.017),   0, 'Band']
         ANNOT[2]  = ['VO',  (1.050,1.080),   0, 'Band']
         ANNOT[3]  = [H2O,   (1.090,1.200),   0, 'Band']
-        ANNOT[4]  = ['Na I', 1.141,         25, 'Line']
+        ANNOT[4]  = ['Na I', 1.141,         -5, 'Line']
         ANNOT[5]  = ['K I',  1.170,        -30, 'Line']
         ANNOT[6]  = ['VO',  (1.160,1.200),   0, 'Band']
         ANNOT[7]  = ['FeH', (1.194,1.239),   0, 'Band']
@@ -103,7 +103,7 @@ def addannot(specData, subPlot, bandName, classType):
         # Determine distances between annotated point and annotation's objects
         offLine = annotation[2]     # Distance betw. annotation line & plot
         if offLine > 0:
-            offText = offLine + 10  # Distance betw. text & plot
+            offText = offLine + 8  # Distance betw. text & plot
         else:
             offText = offLine - 15
         
@@ -141,15 +141,17 @@ def addannot(specData, subPlot, bandName, classType):
             
             # Set the coordinate location for the annotated point
             annotWL  = specData[xtremeObj][0][objsFluxIdxs[xtremeObj]]
-            annotLoc = (annotWL, objsFluxes[xtremeObj])
+            annotLoc = [annotWL, objsFluxes[xtremeObj]]
             
             # Set the coordinate location for the annotation's text
             if annotation[1] == 0.8943:   # Rb I
-                textLoc = (-5, offText)
+                textLoc = [-5, offText]
             elif annotation[1] == 1.141:  # Na I
-                textLoc = (-2, offText)
+                textLoc = [-2, offText]
             else:
-                textLoc = (0, offText)
+                textLoc = [0, offText]
+            if annotation[1] == 0.8521 and classType == 'L8':  # Cs I
+                annotLoc[1] = annotLoc[1] * 2
             
             # Add the Earth symbol to telluric features
             if annotType.endswith('T'):
@@ -344,7 +346,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
     import matplotlib as mpl
     import matplotlib.pyplot as plt
     import scipy.stats as sps
-    import cubehelix
+    #import cubehelix
     import types
     import pdb
     
@@ -498,7 +500,7 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
         if bandIdx == 2:
             subPlot.set_xlabel(X_LABEL, position=(1.1,0.08), labelpad=0)
         if bandIdx == 3:
-            subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.5), labelpad=-8)
+            subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.45), labelpad=-8)
             subPlot.set_title(title1, fontsize=13, fontweight='bold', \
                               position=(0.01,0.885), ha='left')
             subPlot.text(0.01,0.85, title2, fontsize=9, transform=subPlot.transAxes)
@@ -703,7 +705,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                    'Young?','Dusty?','Blue?','Binary?','Pec?')
     
     # For TXT standards file
-    FILE_IN_STD = 'NIR_Standards.txt'   # ASCII file w/ standards
+    FILE_IN_STD = 'NIR_Standards_K10.txt'   # ASCII file w/ standards
     HDR_FILE_IN_STD = ('Ref','Designation','NIR SpType','OPT SpType')
     colNameNIRS = HDR_FILE_IN_STD[2]
     colNameOPTS = HDR_FILE_IN_STD[3]
@@ -943,9 +945,17 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     fileslist = os.listdir(FOLDER_IN)
     inclFile = ''
     for fl in fileslist:
-        if fl.find(spInput) != -1 and fl.find('keepers') != -1 and fl.find(grav) == 7:
+        if fl.find('keepers') == -1 or fl.find(spInput) == -1: continue
+        
+        tmpfl = fl.split('_')
+        if len(tmpfl[1]) == 2 and grav == 'f':
             inclFile = fl
             break
+        elif len(tmpfl[1]) == 3:
+            if tmpfl[1][-1] == grav:
+                inclFile = fl
+                break
+    
     if inclFile != '':
         dataIncl = ascii.read(FOLDER_IN + inclFile, format='no_header', \
                               delimiter=DELL_CHAR, comment=COMM_CHAR)
@@ -963,9 +973,17 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
     # 10.2 Extract NIR file names from "rejects" file
     exclFile = ''
     for fl in fileslist:
-        if fl.find(spInput) != -1 and fl.find('rejects') != -1 and fl.find(grav) == 7:
+        if fl.find('rejects') == -1 or fl.find(spInput) == -1: continue
+        
+        tmpfl = fl.split('_')
+        if len(tmpfl[1]) == 2 and grav == 'f':
+            exclFile = fl
+            break
+        elif len(tmpfl[1]) == 3:
+            if tmpfl[1][-1] == grav:
                 exclFile = fl
                 break
+    
     if exclFile != '':
         try:
             dataExcl = ascii.read(FOLDER_IN + exclFile, format='no_header', \
@@ -1034,7 +1052,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
         return
     
     
-    # 11. CALCULATE TEMPLATE SPECTRA FOR SELECTED SET OF SPECTRA -----------------------
+    # 11. CALCULATE TEMPLATE SPECTRA FOR SELECTED SET OF SPECTRA ---------------------
     # Gather spectra to use to calculate template spectrum
     if not allExcl:
         O_template = [None] * 3 # Holds calculated template for output
@@ -1051,11 +1069,11 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                     
                     if bandKey == 'OPT':
                         # Manually skip including OPT spectrum of some specific targets
-                        # which use the same NIR fits file as both OPT and NIR spectrum, 
+                        # which use the same NIR fits file as both OPT and NIR spectrum
                         # so OPT spectrum is very bad
                         if refs[spIdx] == '50246':
                             continue
-                        elif refs[spIdx] == '50061':
+                        if refs[spIdx] == '50061':
                             continue
                         elif refs[spIdx] == '50188':
                             continue
@@ -1109,7 +1127,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
             O_template = None
     
     
-    # 12. PLOT DATA --------------------------------------------------------------------
+    # 12. PLOT DATA -----------------------------------------------------------
     if plot:
         # Gather info on each target
         objInfo = [None] * len(refs)
@@ -1150,7 +1168,7 @@ def main(spInput, grav='', plot=True, templ=False, std=False, excluded=False, no
                        grav + sptxt + '.pdf', dpi=300)
     
     
-    # 13. DETERMINE OUTPUT -------------------------------------------------------------
+    # 13. DETERMINE OUTPUT ----------------------------------------------------
     if templ:
         if std:
             return O_template, O_standard

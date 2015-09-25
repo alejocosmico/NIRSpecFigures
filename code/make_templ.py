@@ -2,18 +2,20 @@
 
 import nir_opt_comp_strip as nocs
 import astrotools as at
-execfile('def_constants.py')
 
+with open("def_constants.py") as f:
+    code = compile(f.read(), "def_constants.py", "exec")
+    exec(code)
 GRAVS = ['f','g','b']
 
 for sptp in SPTYPES:
-    print sptp
+    print(sptp)
     for grav in GRAVS:
         templ = nocs.main(sptp, grav, templ=True, plot=False)
         if templ is None:
             continue
         
-        print ' ' + grav
+        print(' ' + grav)
         for bdidx, band in enumerate(templ):
             # Create template spectrum file
             # columns are: wavelength, mean flux, standard deviation, min flux, max flux
