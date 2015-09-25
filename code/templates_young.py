@@ -170,7 +170,10 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
         
         # 4.5) Fix axes limits ------------------------------------------------
         minPlot = minPlot - minPlot * 0.1
-        maxOff = 0.02
+        if grav == 'b':
+            maxOff = 0.027
+        else:
+            maxOff = 0.01
         maxPlot = maxPlot + maxPlot * maxOff
         
         plt.ylim(ymin=minPlot, ymax=maxPlot)
@@ -184,18 +187,20 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
         
         # 5) Add legend =======================================================
         if bandIdx == 2:
-            xpos = 0.9 # in wavelength units
-            ypos = 0.45 # in flux units
-            xp = 0.3   # where 0 is left, 0.5 is middle, and 1 is right
+            xp = 0. # where 0 is left, 0.5 is middle, and 1 is right
+            yp = 0.983
             
             # add lines
-            subPlot.axhline(y=ypos, xmin=xp, xmax=xp+0.09, color=BLACK)
-            subPlot.axhline(y=ypos-0.18, xmin=xp, xmax=xp+0.09, color=plotColor)
+            subPlot.plot((xp,xp+.05),(yp,yp), color=BLACK, transform=subPlot.transAxes)
+            subPlot.plot((xp,xp+.05),(yp*.977,yp*.977), color=plotColor, \
+                         transform=subPlot.transAxes)
+            #subPlot.axhline(y=ypos, xmin=xp, xmax=xp+0.07, color=BLACK)
+            #subPlot.axhline(y=ypos*.988, xmin=xp, xmax=xp+0.07, color=plotColor)
             # add texts
-            subPlot.text(xpos + 0.16, ypos - 0.05, 'field grav. templates', \
-                         color=BLACK)
-            subPlot.text(xpos + 0.16, ypos - 0.23, youngName + ' template', \
-                         color=plotColor)
+            subPlot.text(xp + 0.06, yp*.991, 'field grav. templates', \
+                         color=BLACK, transform=subPlot.transAxes)
+            subPlot.text(xp + 0.06, yp*.97, youngName + ' template', \
+                         color=plotColor, transform=subPlot.transAxes)
     
     return fig
 
