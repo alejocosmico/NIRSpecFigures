@@ -164,16 +164,15 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
             if bandIdx != 1 and specIdx % 2 == 0:
                 textLoc = (0, 15)
                 annotLoc = (wls[-10], tailMax + offset)
-                annotTxt = objLabel
-                subPlot.annotate(annotTxt, xy=annotLoc, xycoords='data', color=BLACK, \
+                subPlot.annotate(objLabel, xy=annotLoc, xycoords='data', color=BLACK, \
                                  xytext=textLoc, textcoords='offset points')
         
         # 4.5) Fix axes limits ------------------------------------------------
         minPlot = minPlot - minPlot * 0.1
         if grav == 'b':
-            maxOff = 0.027
+            maxOff = 0.031
         else:
-            maxOff = 0.01
+            maxOff = 0.031
         maxPlot = maxPlot + maxPlot * maxOff
         
         plt.ylim(ymin=minPlot, ymax=maxPlot)
@@ -189,7 +188,12 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
         if bandIdx == 2:
             xp = 0. # where 0 is left, 0.5 is middle, and 1 is right
             yp = 0.983
-            
+            if compName < 'L3':
+                anntxt = 'L0-L4 field grav. templates'
+            elif compName == 'L3':
+                anntxt = 'L1-L5 field grav. templates'
+            else:
+                anntxt = 'L2-L7 field grav. templates'
             # add lines
             subPlot.plot((xp,xp+.05),(yp,yp), color=BLACK, transform=subPlot.transAxes)
             subPlot.plot((xp,xp+.05),(yp*.977,yp*.977), color=plotColor, \
@@ -197,7 +201,7 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
             #subPlot.axhline(y=ypos, xmin=xp, xmax=xp+0.07, color=BLACK)
             #subPlot.axhline(y=ypos*.988, xmin=xp, xmax=xp+0.07, color=plotColor)
             # add texts
-            subPlot.text(xp + 0.06, yp*.991, 'field grav. templates', \
+            subPlot.text(xp + 0.06, yp*.991, anntxt, \
                          color=BLACK, transform=subPlot.transAxes)
             subPlot.text(xp + 0.06, yp*.97, youngName + ' template', \
                          color=plotColor, transform=subPlot.transAxes)
@@ -257,8 +261,10 @@ for ysptp in YOUNG_SPTYPES:
     # Choose which field templates to compare with
     if ysptp == 'L0' or ysptp == 'L1' or ysptp == 'L2':
         tmpsptypes = ['L0','L1','L2','L3','L4']
-    elif ysptp == 'L3' or ysptp == 'L4':
+    elif ysptp == 'L3':
         tmpsptypes = ['L1','L2','L3','L4','L5']
+    elif ysptp == 'L4':
+        tmpsptypes = ['L2','L3','L4','L5','L6','L7']
     #elif ysptp == 'L5':
     #    tmpsptypes = ['L2','L3','L4','L5','L6','L7']
     
