@@ -353,7 +353,7 @@ def main(grav):
         
         # Choose colors (colorSet defined in def_constants.py)
         numtempls = DIVISIONS[idiv+1] - DIVISIONS[idiv]
-        if grav== 'lg' and (SKIPL1 and idiv == 0):
+        if grav == 'lg' and (SKIPL1 and idiv == 0):
             numtempls = numtempls - 1
         tmpplotColors = []
         for ipop in range(0,numtempls):
@@ -375,7 +375,6 @@ def main(grav):
                     ys = templ['col2']
                     ax.plot(xs, ys, color=tmpplotColors[icolor], label=labels[itempl], \
                             linewidth=1.3)
-                    #ax.plot(xs, ys, color=plotColors[icolor], label=labels[itempl])
                     icolor = icolor + 1
             
             # Add labels and legend
