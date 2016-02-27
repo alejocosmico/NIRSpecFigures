@@ -80,7 +80,7 @@ colorSet[10] = COLOR_SET[[1,4,11,12,19,20,21,25,27,29]].tolist()
 #colorSet[9]  = ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7', \
 #                '#92c5de','#4393c3','#2166ac','#053061']
 colorSet[9]  = ['#67001f','#b2182b','#d6604d','#f4a582','#f4a582', \
-                '#92c5de','#4393c3','#2166ac','#053061'] # Use this one to make field-L4 brighter orange.
+                '#92c5de','#4393c3','#2166ac','#053061'] # Use this one to make field-L4 brighter oran ge.
 colorSet[8]  = ['#67001f','#b2182b','#d6604d','#f4a582', \
                 '#92c5de','#4393c3','#2166ac','#053061']
 colorSet[7]  = ['#b2182b','#d6604d','#f4a582','#fddbc7','#92c5de', \
