@@ -189,11 +189,14 @@ def plotspec(specData, bandNames, limits, objID, plotInstructions, compName, req
             xp = 0. # where 0 is left, 0.5 is middle, and 1 is right
             yp = 0.983
             if compName < 'L3':
-                anntxt = 'L0-L4 field grav. templates'
+                #anntxt = 'L0-L4 field grav. templates'
+                anntxt = 'L5-L8 field grav. templates'
             elif compName == 'L3':
-                anntxt = 'L1-L5 field grav. templates'
+                #anntxt = 'L1-L5 field grav. templates'
+                anntxt = 'L6-L8 field grav. templates'
             else:
-                anntxt = 'L2-L7 field grav. templates'
+                #anntxt = 'L2-L7 field grav. templates'
+                anntxt = 'L6-L8 field grav. templates'
             # add lines
             subPlot.plot((xp,xp+.05),(yp,yp), color=BLACK, transform=subPlot.transAxes)
             subPlot.plot((xp,xp+.05),(yp*.977,yp*.977), color=plotColor, \
@@ -260,13 +263,14 @@ for ysptp in YOUNG_SPTYPES:
     
     # Choose which field templates to compare with
     if ysptp == 'L0' or ysptp == 'L1' or ysptp == 'L2':
-        tmpsptypes = ['L0','L1','L2','L3','L4']
+        #tmpsptypes = ['L0','L1','L2','L3','L4']
+        tmpsptypes = ['L5','L6','L7','L8']
     elif ysptp == 'L3':
-        tmpsptypes = ['L1','L2','L3','L4','L5']
+        #tmpsptypes = ['L1','L2','L3','L4','L5']
+        tmpsptypes = ['L6','L7','L8']
     elif ysptp == 'L4':
-        tmpsptypes = ['L2','L3','L4','L5','L6','L7']
-    #elif ysptp == 'L5':
-    #    tmpsptypes = ['L2','L3','L4','L5','L6','L7']
+        #tmpsptypes = ['L2','L3','L4','L5','L6','L7']
+        tmpsptypes = ['L6','L7','L8']
     
     for idxTp, spTp in enumerate(tmpsptypes):
         # Attach copy of young template
@@ -296,4 +300,4 @@ for ysptp in YOUNG_SPTYPES:
     bndNames = list(BANDS)
     figure = plotspec(spectra, bndNames, BAND_LIMS, spTypes, plotInstructions, ysptp, pltColor, grav)
     
-    plt.savefig(FOLDER_OUT_PLT + '/templates-' + ysptp + grav + '.pdf', dpi=300)
+    plt.savefig(FOLDER_OUT_PLT + '/templates2-' + ysptp + grav + '.pdf', dpi=300)
