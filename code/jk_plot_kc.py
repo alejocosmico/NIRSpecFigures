@@ -21,7 +21,7 @@ LOCSBOXLOWG = np.arange(1.4,18,2)
 
 # Initialize txt file to store stats
 f = open(FOLDER_DATA + 'quartiles_stats.txt', 'w')
-f.write('#SpType gravity min 25-quartile median 75-quartile max mean numOjbs \n')
+f.write('#SpType gravity min 25-quartile median mean 75-quartile max numOjbs \n')
 
 # Read data
 dataraw = asc.read(FOLDER_DATA + 'OptNIR_ALL.txt', delimiter='\t')
@@ -58,7 +58,8 @@ for isptype,sptype in enumerate(SPTYPESN):
         if len(icat) == 0:
             continue
         itoplot = np.where(sptypes[icat] == sptype)[0]
-        if len(itoplot) == 0:
+        numjk = len(jks[icat[itoplot]])
+        if numjk == 0:
             continue
         # Keep track of max J-K value in each category (field v. low-g)
         jkmax = np.max(jks[icat[itoplot]])
@@ -67,7 +68,6 @@ for isptype,sptype in enumerate(SPTYPESN):
         if categ in [3,5]:
             # Record J-K uncertainties of objects drawn
             plotteduncs = np.append(plotteduncs, jksuncs[icat[itoplot]].data.data)
-            
             if categ == 3:
                 grav = 'field'
                 xloc = LOCSBOXFIELDS[isptype]
@@ -75,11 +75,12 @@ for isptype,sptype in enumerate(SPTYPESN):
                 grav = 'low-g'
                 xloc = LOCSBOXLOWG[isptype]
             # If sample has < 6 objects, then just draw mean and min/max
-            if len(itoplot) < 6:
+            if numjk < 6:
                 tmpmean = np.mean(jks[icat[itoplot]])
-                tmpmin = tmpmean - np.min(jks[icat[itoplot]])
-                tmpmax = np.max(jks[icat[itoplot]]) - tmpmean
-                ax.errorbar(xloc, tmpmean, yerr=np.array([[tmpmin],[tmpmax]]), \
+                tmpmin = np.min(jks[icat[itoplot]])
+                tmpmax = np.max(jks[icat[itoplot]])
+                ax.errorbar(xloc, tmpmean, \
+                            yerr=np.array([[tmpmean - tmpmin],[tmpmax - tmpmean]]), \
                             fmt='.', color=COLORS[icateg], linewidth=0.7, capsize=1.5)
             else:
                 bp = ax.boxplot([jks[icat[itoplot]]], positions=[xloc], whis=np.inf, \
@@ -103,7 +104,6 @@ for isptype,sptype in enumerate(SPTYPESN):
                        facecolor=COLORS[icateg], s=7, zorder=10)
             
             # Annotate number of objects in box
-            numjk = len(jks[icat[itoplot]])
             if categ == 3 and (sptype==10 or sptype==12 or sptype==13 or sptype==15):
                 yloc = jkmax + 0.06
             else:
@@ -112,14 +112,24 @@ for isptype,sptype in enumerate(SPTYPESN):
                     fontsize=7, ha='right', zorder=1000)
             
             # Consolidate data to print in txt file
-            tmptextline = SPTYPES[isptype] + ' ' + grav + ' ' \
-                               + str(np.round(bp['caps'][0].get_ydata()[0],3)) + ' ' \
-                               + str(np.round(bp['boxes'][0].get_ydata()[0],3)) + ' ' \
-                               + str(np.round(bp['medians'][0].get_ydata()[0],3))+' ' \
-                               + str(np.round(bp['boxes'][0].get_ydata()[2],3)) + ' ' \
-                               + str(np.round(bp['caps'][1].get_ydata()[0],3)) + ' ' \
-                               + str(np.round(avgjk,3)) + ' ' \
-                               + str(numjk) + '\n'
+            if numjk < 6:
+                tmptextline = SPTYPES[isptype] + ' ' + grav + ' ' \
+                                      + str(np.round(tmpmin,2)) + ' ' \
+                                      + '..' + ' ' \
+                                      + '..' + ' ' \
+                                      + str(np.round(tmpmean,2)) + ' ' \
+                                      + '..' + ' ' \
+                                      + str(np.round(tmpmax,2)) + ' ' \
+                                      + str(numjk) + '\n'
+            else:
+                tmptextline = SPTYPES[isptype] + ' ' + grav + ' ' \
+                                + str(np.round(bp['caps'][0].get_ydata()[0],2)) + ' ' \
+                                + str(np.round(bp['boxes'][0].get_ydata()[0],2)) + ' ' \
+                                + str(np.round(bp['medians'][0].get_ydata()[0],2))+' ' \
+                                + str(np.round(avgjk,2)) + ' ' \
+                                + str(np.round(bp['boxes'][0].get_ydata()[2],2)) + ' ' \
+                                + str(np.round(bp['caps'][1].get_ydata()[0],2)) + ' ' \
+                                + str(numjk) + '\n'
             f.write(tmptextline)
         
         # Plot excluded as scatter points
