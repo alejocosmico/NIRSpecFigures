@@ -503,13 +503,13 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
             subPlot.set_ylabel(Y_LABEL, position=(-0.04,0.45), labelpad=-8)
             subPlot.set_title(title1, fontsize=13, fontweight='bold', \
                               position=(0.01,0.885), ha='left')
-            subPlot.text(0.01,0.85, title2, fontsize=9, transform=subPlot.transAxes)
-            subPlot.text(0.01,0.8, 'templates', fontsize=9, \
+            subPlot.text(-0.01,0.85, title2, fontsize=9, transform=subPlot.transAxes)
+            subPlot.text(-0.01,0.8, 'template', fontsize=9, \
                          transform=subPlot.transAxes)
             if plotExcluded:
-                subPlot.text(0.01, 0.75, '& excluded', fontsize=8, \
+                subPlot.text(-0.01, 0.75, '& excluded', fontsize=8, \
                              transform=subPlot.transAxes)
-                subPlot.text(0.01, 0.71, 'objects', fontsize=8, \
+                subPlot.text(-0.01, 0.71, 'objects', fontsize=8, \
                              transform=subPlot.transAxes)
         
         # 4d) Determine order of spectra plotting -----------------------------
@@ -662,9 +662,9 @@ def plotspec(specData, bandNames, limits, objID, classType, grav=None, plotInstr
             
             # Add Titles for the legends
             legendTitles1 = 'Optical'
-            legendTitles2 = 'Coords.   SpType   J-K'
-            xCoord1 = -1.75
-            xCoord2 = -2.14
+            legendTitles2 = 'Object    SpType   J-K'
+            xCoord1 = -1.70
+            xCoord2 = -2.08
             yCoord1 = 0.99
             yCoord2 = 0.95
             subPlot.text(xCoord1, yCoord1, legendTitles1, fontsize=7, \

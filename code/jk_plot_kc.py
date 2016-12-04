@@ -50,6 +50,7 @@ plt.rc('font', size=8)
 ax = fig.add_axes([0.12,0.09,0.86,0.88]) # left, bottom, width, height
 
 # Plot data:
+plotteduncs = np.array([])
 for isptype,sptype in enumerate(SPTYPESN):
     for icateg,categ in enumerate(CATEGNUMS):
         # Identify relevant objects to plot
@@ -64,26 +65,37 @@ for isptype,sptype in enumerate(SPTYPESN):
         
         # Plot objects in template as box & whiskers
         if categ in [3,5]:
+            # Record J-K uncertainties of objects drawn
+            plotteduncs = np.append(plotteduncs, jksuncs[icat[itoplot]].data.data)
+            
             if categ == 3:
                 grav = 'field'
                 xloc = LOCSBOXFIELDS[isptype]
             else:
                 grav = 'low-g'
                 xloc = LOCSBOXLOWG[isptype]
-            
-            bp = ax.boxplot([jks[icat[itoplot]]], positions=[xloc], whis=np.inf, widths=0.3)
-            for box in bp['boxes']:
-                box.set(color=COLORS[icateg])
-                box.set(linewidth=0.7)
-            for whisker in bp['whiskers']:
-                whisker.set(color=COLORS[icateg])
-                whisker.set(linestyle='-')
-                whisker.set(linewidth=0.7)
-            for median in bp['medians']:
-                median.set(color=COLORS[icateg])
-            for cap in bp['caps']:
-                cap.set(color=COLORS[icateg])
-                cap.set(linewidth=0.7)
+            # If sample has < 6 objects, then just draw mean and min/max
+            if len(itoplot) < 6:
+                tmpmean = np.mean(jks[icat[itoplot]])
+                tmpmin = tmpmean - np.min(jks[icat[itoplot]])
+                tmpmax = np.max(jks[icat[itoplot]]) - tmpmean
+                ax.errorbar(xloc, tmpmean, yerr=np.array([[tmpmin],[tmpmax]]), \
+                            fmt='.', color=COLORS[icateg], linewidth=0.7, capsize=1.5)
+            else:
+                bp = ax.boxplot([jks[icat[itoplot]]], positions=[xloc], whis=np.inf, \
+                                widths=0.3)
+                for box in bp['boxes']:
+                    box.set(color=COLORS[icateg])
+                    box.set(linewidth=0.7)
+                for whisker in bp['whiskers']:
+                    whisker.set(color=COLORS[icateg])
+                    whisker.set(linestyle='-')
+                    whisker.set(linewidth=0.7)
+                for median in bp['medians']:
+                    median.set(color=COLORS[icateg])
+                for cap in bp['caps']:
+                    cap.set(color=COLORS[icateg])
+                    cap.set(linewidth=0.7)
             
             # Plot averages as scatter points
             avgjk = np.average(jks[icat[itoplot]])
@@ -136,7 +148,7 @@ for tl in tcks:
     tl.set_color(WHITE)
 
 ax.set_xlabel('Optical spectral type', labelpad=0)
-ax.set_ylabel(r'J-K$_s$ (2MASS)', labelpad=0)
+ax.set_ylabel(r'$J-K_s$ (2MASS)', labelpad=0)
 ax.set_xticks(LOCSBOXFIELDS+0.3)
 ax.set_xticklabels(SPTYPES)
 ax.set_yticks(np.arange(0.8,2.8,0.2))
@@ -148,8 +160,8 @@ ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.9)
 ax.set_axisbelow(True)
 
 # Add legend
-ax.plot([100,100], color=BLACK, label='field gravity quartiles')
-ax.plot([100,100], color=RED, label='low gravity quartiles')
+ax.plot([100,100], color=BLACK, label='field gravity statistics')
+ax.plot([100,100], color=RED, label='low gravity statistics')
 ax.scatter(100,100, marker='o', edgecolor='none', facecolor=RED, label='mean')
 ax.scatter(100,100, marker='x', color=ORANGE, label='excluded (')
 lgd = ax.legend(loc='upper left', handlelength=0.5, numpoints=1, scatterpoints=1, \
@@ -157,6 +169,11 @@ lgd = ax.legend(loc='upper left', handlelength=0.5, numpoints=1, scatterpoints=1
 lgd.draw_frame(False)
 for ilgdtxt,lgdtxt in enumerate(lgd.get_texts()):
     plt.setp(lgdtxt, fontsize=7)
+
+# Draw mean color uncertainty
+meanunc = np.median(plotteduncs)
+eb = ax.errorbar(LOCSBOXLOWG[-1]*1.01, 2.5, yerr=meanunc, fmt='d', ms=4, color=GRAY, \
+                mec=GRAY, linewidth=1, capsize=2)
 
 # Add additional text and icons to legend
 circle = mpatches.Ellipse((0.52,2.318), 0.4, 0.04, facecolor=BLACK, edgecolor='none')
