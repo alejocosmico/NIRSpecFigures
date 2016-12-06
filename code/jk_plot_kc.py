@@ -82,6 +82,8 @@ for isptype,sptype in enumerate(SPTYPESN):
                 ax.errorbar(xloc, tmpmean, \
                             yerr=np.array([[tmpmean - tmpmin],[tmpmax - tmpmean]]), \
                             fmt='.', color=COLORS[icateg], linewidth=0.7, capsize=1.5)
+                print(sptype, ' ', grav, ': ', format(numjk), ' ', format(tmpmean), \
+                      '  ', format(np.median(jks[icat[itoplot]])))
             else:
                 bp = ax.boxplot([jks[icat[itoplot]]], positions=[xloc], whis=np.inf, \
                                 widths=0.3)
@@ -182,8 +184,12 @@ for ilgdtxt,lgdtxt in enumerate(lgd.get_texts()):
 
 # Draw mean color uncertainty
 meanunc = np.median(plotteduncs)
-eb = ax.errorbar(LOCSBOXLOWG[-1]*1.01, 2.5, yerr=meanunc, fmt='d', ms=4, color=GRAY, \
+eb = ax.errorbar(LOCSBOXLOWG[-1]*1.02, 0.9, yerr=meanunc, fmt='d', ms=4, color=GRAY, \
                 mec=GRAY, linewidth=1, capsize=2)
+ax.text(LOCSBOXLOWG[-1], 0.90, 'median', fontsize=7, ha='right', color=GRAY, \
+        style='italic')
+ax.text(LOCSBOXLOWG[-1], 0.85, 'uncertainty', fontsize=7, ha='right', color=GRAY, \
+        style='italic')
 
 # Add additional text and icons to legend
 circle = mpatches.Ellipse((0.52,2.318), 0.4, 0.04, facecolor=BLACK, edgecolor='none')
